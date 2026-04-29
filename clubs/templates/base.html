@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Football Scouting{% endblock %}</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f7f6;
+            color: #1f2a24;
+        }
+
+        .layout {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            box-sizing: border-box;
+            padding: 28px 22px;
+            background: #ffffff;
+            border-right: 1px solid #dce5df;
+        }
+
+        .brand {
+            margin: 0 0 34px;
+            font-size: 24px;
+            line-height: 1.2;
+        }
+
+        .user {
+            margin: -20px 0 28px;
+            color: #617069;
+            font-size: 14px;
+        }
+
+        .sidebar nav {
+            display: grid;
+            gap: 8px;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 11px 12px;
+            border-radius: 6px;
+            color: #1f2a24;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .sidebar a:hover {
+            background: #edf4f0;
+            color: #146c43;
+        }
+
+        .sidebar .logout {
+            margin-top: 20px;
+            color: #9b1c1c;
+        }
+
+        .content {
+            padding: 40px 32px;
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        a {
+            color: #146c43;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .panel {
+            padding: 28px;
+            background: #ffffff;
+            border: 1px solid #dce5df;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 760px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+                height: auto;
+                border-right: 0;
+                border-bottom: 1px solid #dce5df;
+            }
+
+            .brand {
+                margin-bottom: 10px;
+            }
+
+            .user {
+                margin: 0 0 16px;
+            }
+
+            .sidebar nav {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .content {
+                padding: 24px 16px;
+            }
+        }
+
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <h1 class="brand">Football Scouting</h1>
+            <p class="user">Signed in as {{ request.user.username }}</p>
+            <nav>
+                <a href="{% url 'dashboard' %}">Dashboard</a>
+                <a href="{% url 'my_club' %}">My Club</a>
+                <a href="{% url 'my_players' %}">My Players</a>
+                <a class="logout" href="{% url 'logout' %}">Logout</a>
+            </nav>
+        </aside>
+
+        <div class="content">
+            <main>
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Player | Football Scouting{% endblock %}
+
+{% block extra_css %}
+    .confirm {
+        max-width: 520px;
+    }
+
+    h2 {
+        margin: 0 0 10px;
+        font-size: 28px;
+    }
+
+    p {
+        margin: 0 0 22px;
+        color: #617069;
+        line-height: 1.5;
+    }
+
+    .actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    button {
+        padding: 12px 18px;
+        border: 0;
+        border-radius: 6px;
+        background: #9b1c1c;
+        color: #ffffff;
+        font-size: 15px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+{% endblock %}
+
+{% block content %}
+    <section class="panel confirm">
+        <h2>Delete {{ player.name }}?</h2>
+        <p>This will remove the player and their stats from {{ club.name }}.</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="actions">
+                <button type="submit">Delete Player</button>
+                <a href="{% url 'my_players' %}">Cancel</a>
+            </div>
+        </form>
+    </section>
+{% endblock %}

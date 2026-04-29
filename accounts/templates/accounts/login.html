@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Football Scouting</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+            background: #f3f6f4;
+            color: #1f2a24;
+        }
+
+        .login-box {
+            width: 100%;
+            max-width: 360px;
+            padding: 28px;
+            background: #ffffff;
+            border: 1px solid #dce5df;
+            border-radius: 8px;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 26px;
+        }
+
+        p {
+            margin: 0 0 24px;
+            color: #617069;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 16px;
+            padding: 11px;
+            border: 1px solid #c8d5ce;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: 0;
+            border-radius: 6px;
+            background: #146c43;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .error {
+            margin-bottom: 16px;
+            padding: 10px;
+            border-radius: 6px;
+            background: #fde8e8;
+            color: #9b1c1c;
+        }
+    </style>
+</head>
+<body>
+    <main class="login-box">
+        <h1>Football Scouting</h1>
+        <p>Sign in to access your club dashboard.</p>
+
+        {% if error_message %}
+            <div class="error">{{ error_message }}</div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <label for="username">Username</label>
+            <input id="username" type="text" name="username" required autofocus>
+
+            <label for="password">Password</label>
+            <input id="password" type="password" name="password" required>
+
+            <button type="submit">Login</button>
+        </form>
+    </main>
+</body>
+</html>

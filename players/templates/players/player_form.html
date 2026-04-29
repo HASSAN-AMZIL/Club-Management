@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} | Football Scouting{% endblock %}
+
+{% block extra_css %}
+    h2 {
+        margin: 0 0 8px;
+        font-size: 28px;
+    }
+
+    .intro {
+        margin: 0 0 24px;
+        color: #617069;
+    }
+
+    form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 16px;
+    }
+
+    .section-title {
+        grid-column: 1 / -1;
+        margin: 10px 0 0;
+        font-size: 18px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: bold;
+    }
+
+    .form-control {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 11px;
+        border: 1px solid #c8d5ce;
+        border-radius: 6px;
+        font-size: 15px;
+    }
+
+    .errorlist {
+        margin: 6px 0 0;
+        padding-left: 18px;
+        color: #9b1c1c;
+    }
+
+    .actions {
+        grid-column: 1 / -1;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-top: 8px;
+    }
+
+    button {
+        padding: 12px 18px;
+        border: 0;
+        border-radius: 6px;
+        background: #146c43;
+        color: #ffffff;
+        font-size: 15px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+{% endblock %}
+
+{% block content %}
+    <section class="panel">
+        <h2>{{ title }}</h2>
+        <p class="intro">{{ club.name }}</p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <h3 class="section-title">Player Information</h3>
+            {% for field in player_form %}
+                <div>
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {{ field.errors }}
+                </div>
+            {% endfor %}
+
+            <h3 class="section-title">Player Stats</h3>
+            {% for field in stats_form %}
+                <div>
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {{ field.errors }}
+                </div>
+            {% endfor %}
+
+            <div class="actions">
+                <button type="submit">{{ button_text }}</button>
+                <a href="{% url 'my_players' %}">Cancel</a>
+            </div>
+        </form>
+    </section>
+{% endblock %}

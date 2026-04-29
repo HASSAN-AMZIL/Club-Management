@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}My Players | Football Scouting{% endblock %}
+
+{% block extra_css %}
+    .page-title {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: center;
+        margin-bottom: 22px;
+        flex-wrap: wrap;
+    }
+
+    h2 {
+        margin: 0 0 6px;
+        font-size: 28px;
+    }
+
+    p {
+        margin: 0;
+        color: #617069;
+    }
+
+    .button {
+        display: inline-block;
+        padding: 11px 16px;
+        border-radius: 6px;
+        background: #146c43;
+        color: #ffffff;
+    }
+
+    .table-wrap {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 720px;
+    }
+
+    th,
+    td {
+        padding: 13px 10px;
+        border-bottom: 1px solid #e1e8e4;
+        text-align: left;
+        vertical-align: top;
+    }
+
+    th {
+        font-size: 13px;
+        color: #617069;
+        text-transform: uppercase;
+    }
+
+    .empty {
+        padding: 22px;
+        background: #f8faf9;
+        border: 1px solid #e1e8e4;
+        border-radius: 8px;
+    }
+
+{% endblock %}
+
+{% block content %}
+    <section class="panel">
+        <div class="page-title">
+            <div>
+                <h2>My Players</h2>
+                {% if club %}
+                    <p>{{ club.name }}</p>
+                {% else %}
+                    <p>Create your club before adding players.</p>
+                {% endif %}
+            </div>
+
+            {% if club %}
+                <a class="button" href="{% url 'player_add' %}">Add Player</a>
+            {% else %}
+                <a class="button" href="{% url 'my_club' %}">Create Club</a>
+            {% endif %}
+        </div>
+
+        {% if players %}
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Age</th>
+                            <th>Position</th>
+                            <th>Value</th>
+                            <th>Join Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for player in players %}
+                            <tr>
+                                <td><a href="{% url 'player_detail' player.id %}">{{ player.name }}</a></td>
+                                <td>{{ player.age }}</td>
+                                <td>{{ player.position }}</td>
+                                <td>{{ player.value }}</td>
+                                <td>{{ player.join_date }}</td>
+                                <td>
+                                    <a href="{% url 'player_edit' player.id %}">Edit</a>
+                                    |
+                                    <a href="{% url 'player_delete' player.id %}">Delete</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty">
+                {% if club %}
+                    No players added yet.
+                {% else %}
+                    No club exists yet.
+                {% endif %}
+            </div>
+        {% endif %}
+    </section>
+{% endblock %}

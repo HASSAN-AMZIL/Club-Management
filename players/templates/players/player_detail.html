@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ player.name }} | Football Scouting{% endblock %}
+
+{% block extra_css %}
+    .player-header {
+        display: grid;
+        grid-template-columns: 160px 1fr;
+        gap: 24px;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+
+    .player-photo {
+        width: 160px;
+        height: 160px;
+        border-radius: 8px;
+        object-fit: cover;
+        border: 1px solid #dce5df;
+        background: #f8faf9;
+    }
+
+    h2 {
+        margin: 0 0 8px;
+        font-size: 32px;
+    }
+
+    .meta {
+        margin: 0;
+        color: #617069;
+        line-height: 1.6;
+    }
+
+    .info-grid,
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 14px;
+        margin-top: 18px;
+    }
+
+    .info-card,
+    .stat-card {
+        padding: 16px;
+        border-radius: 8px;
+        background: #f8faf9;
+        border: 1px solid #e1e8e4;
+    }
+
+    .info-card strong,
+    .stat-card strong {
+        display: block;
+        margin-bottom: 6px;
+        color: #617069;
+        font-size: 13px;
+        text-transform: uppercase;
+    }
+
+    .stat-card span {
+        font-size: 26px;
+        font-weight: bold;
+    }
+
+    .actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 24px;
+    }
+
+    .button {
+        display: inline-block;
+        padding: 11px 16px;
+        border-radius: 6px;
+        background: #146c43;
+        color: #ffffff;
+    }
+
+    .danger {
+        color: #9b1c1c;
+    }
+
+    @media (max-width: 640px) {
+        .player-header {
+            grid-template-columns: 1fr;
+        }
+    }
+{% endblock %}
+
+{% block content %}
+    <section class="panel">
+        <div class="player-header">
+            <img class="player-photo" src="{{ player.image_url }}" alt="{{ player.name }}">
+            <div>
+                <h2>{{ player.name }}</h2>
+                <p class="meta">{{ player.position }} at {{ player.club.name }}</p>
+                <p class="meta">Age {{ player.age }} · Joined {{ player.join_date }}</p>
+            </div>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-card">
+                <strong>Market Value</strong>
+                {{ player.value }}
+            </div>
+            <div class="info-card">
+                <strong>Club</strong>
+                {{ player.club.name }}
+            </div>
+            <div class="info-card">
+                <strong>Position</strong>
+                {{ player.position }}
+            </div>
+        </div>
+
+        {% if player.stats %}
+            <div class="stats-grid">
+                <div class="stat-card"><strong>Pace</strong><span>{{ player.stats.pace }}</span></div>
+                <div class="stat-card"><strong>Shooting</strong><span>{{ player.stats.shooting }}</span></div>
+                <div class="stat-card"><strong>Passing</strong><span>{{ player.stats.passing }}</span></div>
+                <div class="stat-card"><strong>Defense</strong><span>{{ player.stats.defense }}</span></div>
+                <div class="stat-card"><strong>Dribbling</strong><span>{{ player.stats.dribbling }}</span></div>
+            </div>
+        {% endif %}
+
+        <div class="actions">
+            <a class="button" href="{% url 'player_edit' player.id %}">Edit Player</a>
+            <a class="danger" href="{% url 'player_delete' player.id %}">Delete Player</a>
+            <a href="{% url 'my_players' %}">Back to Players</a>
+        </div>
+    </section>
+{% endblock %}

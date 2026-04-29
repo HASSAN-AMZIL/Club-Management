@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard | Football Scouting{% endblock %}
+
+{% block extra_css %}
+    .welcome h2 {
+        margin: 0 0 12px;
+        font-size: 28px;
+    }
+
+    .welcome p {
+        margin: 0;
+        color: #617069;
+        line-height: 1.6;
+    }
+{% endblock %}
+
+{% block content %}
+    <section class="panel welcome">
+        <h2>Welcome, {{ request.user.username }}</h2>
+        <p>This is your club dashboard. Player, club, transfer, and scouting tools will be added here.</p>
+    </section>
+{% endblock %}

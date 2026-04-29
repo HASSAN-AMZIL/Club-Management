@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}My Club | Football Scouting{% endblock %}
+
+{% block extra_css %}
+    h2 {
+        margin: 0 0 8px;
+        font-size: 28px;
+    }
+
+    .intro {
+        margin: 0 0 24px;
+        color: #617069;
+    }
+
+    .club-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 14px;
+        margin-bottom: 28px;
+        padding: 18px;
+        background: #f8faf9;
+        border: 1px solid #e1e8e4;
+        border-radius: 8px;
+    }
+
+    .club-summary strong {
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: bold;
+    }
+
+    .form-control {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 11px;
+        border: 1px solid #c8d5ce;
+        border-radius: 6px;
+        font-size: 15px;
+    }
+
+    .errorlist {
+        margin: 6px 0 0;
+        padding-left: 18px;
+        color: #9b1c1c;
+    }
+
+    .actions {
+        grid-column: 1 / -1;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-top: 8px;
+    }
+
+    button {
+        padding: 12px 18px;
+        border: 0;
+        border-radius: 6px;
+        background: #146c43;
+        color: #ffffff;
+        font-size: 15px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+{% endblock %}
+
+{% block content %}
+    <section class="panel">
+        {% if club %}
+            <h2>{{ club.name }}</h2>
+            <p class="intro">Review and update your club information.</p>
+
+            <div class="club-summary">
+                <div><strong>City</strong>{{ club.city }}</div>
+                <div><strong>Country</strong>{{ club.country }}</div>
+                <div><strong>Coach</strong>{{ club.coach }}</div>
+                <div><strong>Stadium</strong>{{ club.stadium }}</div>
+                <div><strong>Budget</strong>{{ club.budget }}</div>
+                <div><strong>Trophies</strong>{{ club.trophies_count }}</div>
+            </div>
+        {% else %}
+            <h2>Create Your Club</h2>
+            <p class="intro">Add your club first. Players will be connected to this club.</p>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <div>
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {{ field.errors }}
+                </div>
+            {% endfor %}
+
+            <div class="actions">
+                <button type="submit">{% if club %}Save Changes{% else %}Create Club{% endif %}</button>
+                <a href="{% url 'dashboard' %}">Back to Dashboard</a>
+            </div>
+        </form>
+    </section>
+{% endblock %}
