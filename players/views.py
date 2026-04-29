@@ -1,11 +1,13 @@
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
 
 from clubs.models import Club
 
 from .forms import PlayerForm, StatsForm
 from .models import Player, Stats
+from .services import ScoutingReportError, generate_scouting_report
 
 
 def get_my_club():
@@ -54,6 +56,43 @@ def player_detail_view(request, player_id):
         {
             'club': club,
             'player': player,
+        },
+    )
+
+
+@login_required
+@require_POST
+def player_generate_report_view(request, player_id):
+    club = get_my_club()
+
+    if club is None:
+        return redirect('my_club')
+
+    player = get_object_or_404(
+        Player.objects.select_related('club', 'stats'),
+        id=player_id,
+        club=club,
+    )
+    stats = getattr(player, 'stats', None)
+    report = None
+    report_error = None
+
+    if stats is None:
+        report_error = 'Player stats are required before generating a scouting report.'
+    else:
+        try:
+            report = generate_scouting_report(player, stats)
+        except ScoutingReportError as exc:
+            report_error = str(exc)
+
+    return render(
+        request,
+        'players/player_detail.html',
+        {
+            'club': club,
+            'player': player,
+            'scouting_report': report,
+            'report_error': report_error,
         },
     )
 

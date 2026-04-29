@@ -131,3 +131,8 @@ STATIC_URL = 'static/'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
+
+OLLAMA_BASE_URL = 'http://localhost:11434'
+# OLLAMA_MODEL = 'qwen3.5:9b'
+OLLAMA_MODEL = 'qwen3:1.7b'
+OLLAMA_TIMEOUT_SECONDS = 120

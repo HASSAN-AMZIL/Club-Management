@@ -70,14 +70,80 @@
     }
 
     .button {
-        display: inline-block;
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: center;
         padding: 11px 16px;
+        border: 0;
         border-radius: 6px;
         background: #146c43;
         color: #ffffff;
+        cursor: pointer;
+        font: inherit;
+        font-weight: bold;
+    }
+
+    .button:disabled {
+        cursor: wait;
+        opacity: 0.8;
+    }
+
+    .loading-spinner {
+        display: none;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.45);
+        border-top-color: #ffffff;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    .is-loading .loading-spinner {
+        display: inline-block;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
     }
 
     .danger {
+        color: #9b1c1c;
+    }
+
+    .inline-form {
+        margin: 0;
+    }
+
+    .report-panel,
+    .error-panel {
+        margin-top: 24px;
+        padding: 18px;
+        border-radius: 8px;
+        line-height: 1.6;
+    }
+
+    .report-panel {
+        background: #f8faf9;
+        border: 1px solid #dce5df;
+    }
+
+    .report-panel h3 {
+        margin: 0 0 10px;
+        font-size: 18px;
+    }
+
+    .report-panel p,
+    .error-panel p {
+        margin: 0;
+        white-space: pre-line;
+    }
+
+    .error-panel {
+        background: #fff5f5;
+        border: 1px solid #f1c7c7;
         color: #9b1c1c;
     }
 
@@ -124,10 +190,45 @@
             </div>
         {% endif %}
 
+        {% if scouting_report %}
+            <div class="report-panel">
+                <h3>Scouting Report</h3>
+                <p>{{ scouting_report }}</p>
+            </div>
+        {% endif %}
+
+        {% if report_error %}
+            <div class="error-panel">
+                <p>{{ report_error }}</p>
+            </div>
+        {% endif %}
+
         <div class="actions">
+            <form class="inline-form report-form" method="post" action="{% url 'player_generate_report' player.id %}">
+                {% csrf_token %}
+                <button class="button report-button" type="submit">
+                    <span class="loading-spinner" aria-hidden="true"></span>
+                    <span class="button-text">Generate Report</span>
+                </button>
+            </form>
             <a class="button" href="{% url 'player_edit' player.id %}">Edit Player</a>
             <a class="danger" href="{% url 'player_delete' player.id %}">Delete Player</a>
             <a href="{% url 'my_players' %}">Back to Players</a>
         </div>
     </section>
+
+    <script>
+        const reportForm = document.querySelector('.report-form');
+
+        if (reportForm) {
+            reportForm.addEventListener('submit', () => {
+                const button = reportForm.querySelector('.report-button');
+                const buttonText = reportForm.querySelector('.button-text');
+
+                reportForm.classList.add('is-loading');
+                button.disabled = true;
+                buttonText.textContent = 'Thinking...';
+            });
+        }
+    </script>
 {% endblock %}
