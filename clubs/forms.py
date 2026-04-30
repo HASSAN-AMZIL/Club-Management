@@ -25,6 +25,6 @@ class ClubForm(forms.ModelForm):
             'stadium': forms.TextInput(attrs={'class': 'form-control'}),
             'coach': forms.TextInput(attrs={'class': 'form-control'}),
             'budget': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
-            'logo_url': forms.URLInput(attrs={'class': 'form-control'}),
+            'logo_url': forms.TextInput(attrs={'class': 'form-control'}),
             'trophies_count': forms.NumberInput(attrs={'class': 'form-control'}),
         }

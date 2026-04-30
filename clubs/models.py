@@ -10,7 +10,7 @@ class Club(models.Model):
     stadium = models.CharField(max_length=100)
     coach = models.CharField(max_length=100)
     budget = models.FloatField()
-    logo_url = models.URLField(max_length=500)
+    logo_url = models.CharField(max_length=500)
     trophies_count = models.IntegerField()
 
     def __str__(self):

@@ -1,32 +1,67 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}My Club | Football Scouting{% endblock %}
 
 {% block extra_css %}
+    .club-header {
+        display: grid;
+        grid-template-columns: 160px 1fr;
+        gap: 24px;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+
+    .club-logo {
+        width: 160px;
+        height: 160px;
+        object-fit: contain;
+        border: 1px solid #dce5df;
+        border-radius: 8px;
+        background: #f8faf9;
+        padding: 14px;
+        box-sizing: border-box;
+    }
+
     h2 {
         margin: 0 0 8px;
-        font-size: 28px;
+        font-size: 32px;
     }
 
-    .intro {
-        margin: 0 0 24px;
+    .meta {
+        margin: 0;
         color: #617069;
+        line-height: 1.6;
     }
 
-    .club-summary {
+    .info-grid,
+    .stats-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
         gap: 14px;
-        margin-bottom: 28px;
-        padding: 18px;
+        margin-top: 18px;
+    }
+
+    .info-card,
+    .stat-card {
+        padding: 16px;
+        border-radius: 8px;
         background: #f8faf9;
         border: 1px solid #e1e8e4;
-        border-radius: 8px;
     }
 
-    .club-summary strong {
+    .info-card strong,
+    .stat-card strong {
         display: block;
-        margin-bottom: 4px;
+        margin-bottom: 6px;
+        color: #617069;
+        font-size: 13px;
+        text-transform: uppercase;
+    }
+
+    .stat-card span {
+        font-size: 26px;
+        font-weight: bold;
     }
 
     form {
@@ -61,54 +96,113 @@
         display: flex;
         gap: 12px;
         align-items: center;
-        margin-top: 8px;
+        flex-wrap: wrap;
+        margin-top: 24px;
     }
 
+    .button,
     button {
-        padding: 12px 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 11px 16px;
         border: 0;
         border-radius: 6px;
         background: #146c43;
         color: #ffffff;
-        font-size: 15px;
+        font: inherit;
         font-weight: bold;
         cursor: pointer;
+    }
+
+    @media (max-width: 640px) {
+        .club-header {
+            grid-template-columns: 1fr;
+        }
     }
 {% endblock %}
 
 {% block content %}
+    {% get_static_prefix as STATIC_PREFIX %}
+
     <section class="panel">
-        {% if club %}
-            <h2>{{ club.name }}</h2>
-            <p class="intro">Review and update your club information.</p>
-
-            <div class="club-summary">
-                <div><strong>City</strong>{{ club.city }}</div>
-                <div><strong>Country</strong>{{ club.country }}</div>
-                <div><strong>Coach</strong>{{ club.coach }}</div>
-                <div><strong>Stadium</strong>{{ club.stadium }}</div>
-                <div><strong>Budget</strong>{{ club.budget }}</div>
-                <div><strong>Trophies</strong>{{ club.trophies_count }}</div>
-            </div>
-        {% else %}
-            <h2>Create Your Club</h2>
-            <p class="intro">Add your club first. Players will be connected to this club.</p>
-        {% endif %}
-
-        <form method="post">
-            {% csrf_token %}
-            {% for field in form %}
+        {% if club and not edit_mode %}
+            <div class="club-header">
+                <img
+                    class="club-logo"
+                    src="{{ STATIC_PREFIX }}club/{{ club.logo_url }}"
+                    alt="{{ club.name }} logo"
+                    onerror="this.onerror=null; this.src='{% static "club/default.png" %}';"
+                >
                 <div>
-                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                    {{ field }}
-                    {{ field.errors }}
+                    <h2>{{ club.name }}</h2>
+                    <p class="meta">{{ club.city }}, {{ club.country }}</p>
+                    <p class="meta">Founded {{ club.founded_year }} &middot; Coach {{ club.coach }}</p>
                 </div>
-            {% endfor %}
+            </div>
+
+            <div class="info-grid">
+                <div class="info-card">
+                    <strong>Stadium</strong>
+                    {{ club.stadium }}
+                </div>
+                <div class="info-card">
+                    <strong>Coach</strong>
+                    {{ club.coach }}
+                </div>
+                <div class="info-card">
+                    <strong>Country</strong>
+                    {{ club.country }}
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <strong>Budget</strong>
+                    <span>{{ club.budget }}</span>
+                </div>
+                <div class="stat-card">
+                    <strong>Trophies</strong>
+                    <span>{{ club.trophies_count }}</span>
+                </div>
+                <div class="stat-card">
+                    <strong>Founded</strong>
+                    <span>{{ club.founded_year }}</span>
+                </div>
+            </div>
 
             <div class="actions">
-                <button type="submit">{% if club %}Save Changes{% else %}Create Club{% endif %}</button>
+                <a class="button" href="{% url 'my_players' %}">View Players</a>
+                <a class="button" href="{% url 'my_club' %}?edit=1">Edit Club</a>
                 <a href="{% url 'dashboard' %}">Back to Dashboard</a>
             </div>
-        </form>
+        {% endif %}
+
+        {% if edit_mode %}
+            <h2>{% if club %}Edit Club{% else %}Create Your Club{% endif %}</h2>
+            {% if not club %}
+                <p class="meta">Add your club first. Players will be connected to this club.</p>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div>
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {{ field.errors }}
+                    </div>
+                {% endfor %}
+
+                <div class="actions">
+                    <button type="submit">{% if club %}Save Changes{% else %}Create Club{% endif %}</button>
+                    {% if club %}
+                        <a href="{% url 'my_club' %}">Cancel</a>
+                    {% else %}
+                        <a href="{% url 'dashboard' %}">Back to Dashboard</a>
+                    {% endif %}
+                </div>
+            </form>
+        {% endif %}
     </section>
 {% endblock %}

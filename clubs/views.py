@@ -13,6 +13,7 @@ def dashboard_view(request):
 @login_required
 def my_club_view(request):
     club = Club.objects.order_by('id').first()
+    edit_mode = request.method == 'POST' or request.GET.get('edit') == '1' or club is None
 
     if request.method == 'POST':
         form = ClubForm(request.POST, instance=club)
@@ -27,6 +28,7 @@ def my_club_view(request):
         'clubs/my_club.html',
         {
             'club': club,
+            'edit_mode': edit_mode,
             'form': form,
         },
     )

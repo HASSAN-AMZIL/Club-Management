@@ -26,7 +26,7 @@ class Player(models.Model):
     position = models.CharField(max_length=3, choices=POSITION_CHOICES)
     value = models.FloatField()
     join_date = models.DateField()
-    image_url = models.URLField(max_length=500)
+    image_url = models.CharField(max_length=500)
     club = models.ForeignKey(
         'clubs.Club',
         on_delete=models.CASCADE,

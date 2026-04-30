@@ -20,7 +20,7 @@ class PlayerForm(forms.ModelForm):
             'position': forms.Select(attrs={'class': 'form-control'}),
             'value': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'join_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'image_url': forms.URLInput(attrs={'class': 'form-control'}),
+            'image_url': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
 
