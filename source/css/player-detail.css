@@ -1,10 +1,10 @@
 main {
-  max-width: 1180px !important;
+  max-width: 1280px !important;
 }
 
 .panel {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
+  grid-template-columns: 320px minmax(0, 1fr);
   gap: 24px;
   padding: 0 !important;
   background: transparent !important;
@@ -98,7 +98,8 @@ main {
 }
 
 .info-grid {
-  grid-column: 2;
+  grid-column: 1;
+  grid-row: 2;
   display: grid;
   grid-template-columns: 1fr !important;
   gap: 14px !important;
@@ -136,7 +137,8 @@ main {
 }
 
 .stats-grid {
-  grid-column: 1;
+  grid-column: 2;
+  grid-row: 2;
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
   gap: 16px !important;
@@ -210,9 +212,14 @@ main {
 }
 
 .report-panel,
-.error-panel,
+.error-panel {
+  grid-column: 1 / -1;
+  grid-row: 3;
+}
+
 .actions {
   grid-column: 1 / -1;
+  grid-row: 4;
 }
 
 .report-panel,
@@ -229,17 +236,59 @@ main {
 .actions {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
+  gap: 10px;
   align-items: center;
   flex-wrap: wrap;
 }
 
-.button {
-  min-width: 148px;
+.actions .inline-form {
+  margin: 0;
 }
 
-.danger {
-  align-self: center;
+.actions .button,
+.actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 164px;
+  min-height: 44px;
+  padding: 0 18px !important;
+  border: 1px solid rgba(132, 204, 22, 0.52) !important;
+  border-radius: 12px !important;
+  color: #101827 !important;
+  background: var(--accent) !important;
+  font-size: 13px;
+  font-weight: 900 !important;
+  line-height: 1;
+  text-align: center;
+  text-decoration: none !important;
+  box-shadow: 0 14px 28px rgba(132, 204, 22, 0.15);
+  transition:
+    transform 0.16s ease,
+    border-color 0.16s ease,
+    background 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.actions .button:hover,
+.actions button:hover {
+  transform: translateY(-1px);
+  background: #9BE21B !important;
+  border-color: rgba(132, 204, 22, 0.8) !important;
+  box-shadow: 0 18px 34px rgba(132, 204, 22, 0.2);
+}
+
+.actions .danger-button {
+  color: #FFFFFF !important;
+  background: #DC2626 !important;
+  border-color: rgba(248, 113, 113, 0.72) !important;
+  box-shadow: 0 14px 28px rgba(220, 38, 38, 0.18);
+}
+
+.actions .danger-button:hover {
+  background: #EF4444 !important;
+  border-color: rgba(252, 165, 165, 0.9) !important;
+  box-shadow: 0 18px 34px rgba(220, 38, 38, 0.24);
 }
 
 @media (max-width: 1080px) {
@@ -250,6 +299,13 @@ main {
   .info-grid,
   .stats-grid {
     grid-column: 1;
+    grid-row: auto;
+  }
+
+  .report-panel,
+  .error-panel,
+  .actions {
+    grid-row: auto;
   }
 }
 

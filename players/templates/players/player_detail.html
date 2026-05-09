@@ -81,8 +81,7 @@
                 <a class="button" href="{% url 'transfer_list' %}">Back to Transfers</a>
             {% else %}
                 <a class="button" href="{% url 'player_edit' player.id %}">Edit Player</a>
-                <a class="danger" href="{% url 'player_delete' player.id %}">Delete Player</a>
-                <a href="{% url 'my_players' %}">Back to Players</a>
+                <a class="button danger-button" href="{% url 'player_delete' player.id %}">Delete Player</a>
             {% endif %}
         </div>
     </section>

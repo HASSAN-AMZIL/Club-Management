@@ -275,23 +275,73 @@ th {
     border-color: var(--border) !important;
 }
 
+.table-wrap,
+.match-list {
+    overflow: hidden;
+    background: rgba(17, 24, 39, 0.72);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+}
+
+.transfer-main,
+.top-player strong,
+.risk-row strong {
+    color: var(--accent) !important;
+    font-weight: 900 !important;
+}
+
 table {
-    border-collapse: collapse;
+    width: 100%;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
 }
 
 th {
+    padding: 16px 18px !important;
     color: var(--muted) !important;
+    background: rgba(11, 17, 32, 0.72);
     font-size: 12px !important;
-    font-weight: 800;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
 }
 
 td {
+    padding: 18px !important;
     color: var(--text) !important;
-    font-size: 14px;
+    font-size: 15px;
+    font-weight: 650;
+    border-bottom: 1px solid var(--border);
+}
+
+tbody tr {
+    background: rgba(17, 24, 39, 0.52);
+}
+
+tbody tr:hover {
+    background: rgba(132, 204, 22, 0.07);
+}
+
+tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.match-row {
+    min-height: 64px;
+    padding: 18px 20px !important;
+    background: rgba(17, 24, 39, 0.52);
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.match-row:hover {
+    background: rgba(132, 204, 22, 0.07);
 }
 
 .match-score {
-    color: var(--accent);
+    color: var(--accent) !important;
+    font-size: 17px;
+    font-weight: 950 !important;
 }
 
 .form-control,
