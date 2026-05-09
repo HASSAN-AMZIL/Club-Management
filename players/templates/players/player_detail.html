@@ -3,156 +3,8 @@
 
 {% block title %}{{ player.name }} | Football Scouting{% endblock %}
 
-{% block extra_css %}
-    .player-header {
-        display: grid;
-        grid-template-columns: 160px 1fr;
-        gap: 24px;
-        align-items: center;
-        margin-bottom: 24px;
-    }
-
-    .player-photo {
-        width: 160px;
-        height: 160px;
-        border-radius: 8px;
-        object-fit: cover;
-        border: 1px solid #dce5df;
-        background: #f8faf9;
-    }
-
-    h2 {
-        margin: 0 0 8px;
-        font-size: 32px;
-    }
-
-    .meta {
-        margin: 0;
-        color: #617069;
-        line-height: 1.6;
-    }
-
-    .info-grid,
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-        gap: 14px;
-        margin-top: 18px;
-    }
-
-    .info-card,
-    .stat-card {
-        padding: 16px;
-        border-radius: 8px;
-        background: #f8faf9;
-        border: 1px solid #e1e8e4;
-    }
-
-    .info-card strong,
-    .stat-card strong {
-        display: block;
-        margin-bottom: 6px;
-        color: #617069;
-        font-size: 13px;
-        text-transform: uppercase;
-    }
-
-    .stat-card span {
-        font-size: 26px;
-        font-weight: bold;
-    }
-
-    .actions {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-        flex-wrap: wrap;
-        margin-top: 24px;
-    }
-
-    .button {
-        display: inline-flex;
-        gap: 8px;
-        align-items: center;
-        justify-content: center;
-        padding: 11px 16px;
-        border: 0;
-        border-radius: 6px;
-        background: #146c43;
-        color: #ffffff;
-        cursor: pointer;
-        font: inherit;
-        font-weight: bold;
-    }
-
-    .button:disabled {
-        cursor: wait;
-        opacity: 0.8;
-    }
-
-    .loading-spinner {
-        display: none;
-        width: 16px;
-        height: 16px;
-        border: 2px solid rgba(255, 255, 255, 0.45);
-        border-top-color: #ffffff;
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
-    }
-
-    .is-loading .loading-spinner {
-        display: inline-block;
-    }
-
-    @keyframes spin {
-        to {
-            transform: rotate(360deg);
-        }
-    }
-
-    .danger {
-        color: #9b1c1c;
-    }
-
-    .inline-form {
-        margin: 0;
-    }
-
-    .report-panel,
-    .error-panel {
-        margin-top: 24px;
-        padding: 18px;
-        border-radius: 8px;
-        line-height: 1.6;
-    }
-
-    .report-panel {
-        background: #f8faf9;
-        border: 1px solid #dce5df;
-    }
-
-    .report-panel h3 {
-        margin: 0 0 10px;
-        font-size: 18px;
-    }
-
-    .report-panel p,
-    .error-panel p {
-        margin: 0;
-        white-space: pre-line;
-    }
-
-    .error-panel {
-        background: #fff5f5;
-        border: 1px solid #f1c7c7;
-        color: #9b1c1c;
-    }
-
-    @media (max-width: 640px) {
-        .player-header {
-            grid-template-columns: 1fr;
-        }
-    }
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'css/player-detail.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -191,7 +43,7 @@
         {% if player.stats %}
             <div class="stats-grid">
                 <div class="stat-card"><strong>Overall</strong><span>{{ player.stats.overall }}</span></div>
-                <div class="stat-card"><strong>Form</strong><span>{{ player.stats.form }}</span></div>
+                <div class="stat-card form-card form-{{ player.stats.form|lower }}"><strong>Form</strong><span>{{ player.stats.form }}</span></div>
                 <div class="stat-card"><strong>Pace</strong><span>{{ player.stats.pace }}</span></div>
                 <div class="stat-card"><strong>Shooting</strong><span>{{ player.stats.shooting }}</span></div>
                 <div class="stat-card"><strong>Passing</strong><span>{{ player.stats.passing }}</span></div>
