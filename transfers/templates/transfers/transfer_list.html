@@ -1,96 +1,10 @@
 {% extends 'base.html' %}
-{% load money_format %}
+{% load static money_format %}
 
 {% block title %}Transfers | Football Scouting{% endblock %}
 
-{% block extra_css %}
-    .page-title {
-        display: flex;
-        justify-content: space-between;
-        gap: 16px;
-        align-items: center;
-        margin-bottom: 22px;
-        flex-wrap: wrap;
-    }
-
-    h2 {
-        margin: 0 0 6px;
-        font-size: 28px;
-    }
-
-    p {
-        margin: 0;
-        color: #617069;
-    }
-
-    .search-form {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-        flex-wrap: wrap;
-        margin-bottom: 22px;
-    }
-
-    .form-control {
-        flex: 1 1 280px;
-        max-width: 420px;
-        box-sizing: border-box;
-        padding: 11px;
-        border: 1px solid #c8d5ce;
-        border-radius: 6px;
-        font-size: 15px;
-    }
-
-    .position-control {
-        flex: 0 0 140px;
-        max-width: 140px;
-    }
-
-    button,
-    .button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 11px 16px;
-        border: 0;
-        border-radius: 6px;
-        background: #146c43;
-        color: #ffffff;
-        font: inherit;
-        font-weight: bold;
-        cursor: pointer;
-    }
-
-    .table-wrap {
-        overflow-x: auto;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        min-width: 760px;
-    }
-
-    th,
-    td {
-        padding: 13px 10px;
-        border-bottom: 1px solid #e1e8e4;
-        text-align: left;
-        vertical-align: top;
-    }
-
-    th {
-        font-size: 13px;
-        color: #617069;
-        text-transform: uppercase;
-    }
-
-    .empty {
-        padding: 22px;
-        background: #f8faf9;
-        border: 1px solid #e1e8e4;
-        border-radius: 8px;
-    }
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'css/transfer-list.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -120,10 +34,15 @@
                 {% endfor %}
             </select>
             <button type="submit">Search</button>
+            <button type="submit" name="suggest" value="1">Suggest Transfer</button>
             {% if query or selected_position %}
                 <a href="{% url 'transfer_list' %}">Clear</a>
             {% endif %}
         </form>
+
+        {% if suggestion_message %}
+            <p class="suggestion-note">{{ suggestion_message }}</p>
+        {% endif %}
 
         {% if players %}
             <div class="table-wrap">
@@ -160,7 +79,9 @@
             </div>
         {% else %}
             <div class="empty">
-                {% if query or selected_position %}
+                {% if suggest_mode %}
+                    {{ suggestion_empty_message }}
+                {% elif query or selected_position %}
                     No players match your search.
                 {% else %}
                     No transfer targets available.

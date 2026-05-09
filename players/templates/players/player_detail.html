@@ -133,7 +133,7 @@
 
             if (startTime) {
                 const elapsed = formatReportDuration(Date.now() - startTime);
-                reportMeta.textContent = `Generated with AI model "${reportMeta.dataset.model}" in ${elapsed}.`;
+                reportMeta.textContent = `Generated with AI model "${reportMeta.dataset.model}" in ${elapsed}s.`;
                 sessionStorage.removeItem(reportStartKey(playerId));
             }
         }

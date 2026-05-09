@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
@@ -13,6 +14,60 @@ def get_my_club():
     return Club.objects.select_related('league').order_by('id').first()
 
 
+WEAKEST_AREA_POSITION_MAP = {
+    'shooting': ['ST', 'CF', 'LW', 'RW'],
+    'passing': ['CM', 'CAM', 'CDM', 'LM', 'RM'],
+    'defense': ['CB', 'LB', 'RB', 'LWB', 'RWB', 'CDM'],
+    'pace': ['LW', 'RW', 'LB', 'RB', 'LWB', 'RWB', 'ST', 'CF'],
+    'dribbling': ['LW', 'RW', 'CAM', 'LM', 'RM', 'CF'],
+}
+
+
+def get_transfer_suggestions(club):
+    average_stats = (
+        Player.objects.filter(club=club, stats__isnull=False)
+        .aggregate(
+            pace=Avg('stats__pace'),
+            shooting=Avg('stats__shooting'),
+            passing=Avg('stats__passing'),
+            defense=Avg('stats__defense'),
+            dribbling=Avg('stats__dribbling'),
+        )
+    )
+    available_averages = {
+        stat: value
+        for stat, value in average_stats.items()
+        if value is not None
+    }
+
+    if not available_averages:
+        return Player.objects.none(), None, 'Add player stats before requesting transfer suggestions.'
+
+    weakest_area = min(available_averages, key=available_averages.get)
+    suggested_positions = WEAKEST_AREA_POSITION_MAP[weakest_area]
+    players = (
+        Player.objects.exclude(club=club)
+        .filter(
+            stats__isnull=False,
+            value__lte=club.budget,
+            position__in=suggested_positions,
+        )
+        .select_related('club', 'club__league', 'stats')
+        .order_by(
+            f'-stats__{weakest_area}',
+            '-stats__overall',
+            'value',
+            'age',
+            'name',
+        )[:3]
+    )
+
+    if not players:
+        return players, weakest_area, 'No affordable transfer suggestions found.'
+
+    return players, weakest_area, ''
+
+
 @login_required
 def transfer_list_view(request):
     club = get_my_club()
@@ -20,19 +75,32 @@ def transfer_list_view(request):
     if club is None:
         return redirect('my_club')
 
-    query = request.GET.get('q', '').strip()
-    selected_position = request.GET.get('position', '').strip()
-    players = (
-        Player.objects.exclude(club=club)
-        .select_related('club', 'club__league', 'stats')
-        .order_by('name')
-    )
+    suggest_mode = request.GET.get('suggest') == '1'
+    suggestion_message = ''
+    suggestion_empty_message = ''
+    weakest_area = None
 
-    if query:
-        players = players.filter(name__icontains=query)
+    if suggest_mode:
+        query = ''
+        selected_position = ''
+        players, weakest_area, suggestion_empty_message = get_transfer_suggestions(club)
 
-    if selected_position:
-        players = players.filter(position=selected_position)
+        if weakest_area is not None:
+            suggestion_message = f'Suggested transfers for weakest area: {weakest_area.title()}'
+    else:
+        query = request.GET.get('q', '').strip()
+        selected_position = request.GET.get('position', '').strip()
+        players = (
+            Player.objects.exclude(club=club)
+            .select_related('club', 'club__league', 'stats')
+            .order_by('name')
+        )
+
+        if query:
+            players = players.filter(name__icontains=query)
+
+        if selected_position:
+            players = players.filter(position=selected_position)
 
     return render(
         request,
@@ -43,6 +111,9 @@ def transfer_list_view(request):
             'query': query,
             'position_choices': Player.POSITION_CHOICES,
             'selected_position': selected_position,
+            'suggest_mode': suggest_mode,
+            'suggestion_message': suggestion_message,
+            'suggestion_empty_message': suggestion_empty_message,
         },
     )
 

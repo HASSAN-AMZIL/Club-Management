@@ -8,7 +8,7 @@ from django.urls import reverse
 from clubs.forms import ClubForm
 from clubs.models import Club, League
 
-from .forms import StatsForm
+from .forms import PlayerForm, StatsForm
 from .models import Player, Stats
 from .services import ScoutingReportError, build_scouting_report_prompt
 
@@ -89,6 +89,13 @@ class PlayerStatsFormTests(TestCase):
         self.assertEqual(stats.form, Stats.FORM_GOOD)
 
 
+class PlayerFormTests(TestCase):
+    def test_player_form_does_not_show_image_url_field(self):
+        form = PlayerForm()
+
+        self.assertNotIn('image_url', form.fields)
+
+
 class ClubFormTests(TestCase):
     def test_club_form_requires_league(self):
         form = ClubForm(
@@ -107,6 +114,31 @@ class ClubFormTests(TestCase):
 
         self.assertFalse(form.is_valid())
         self.assertIn('league', form.errors)
+
+
+class PlayerCreateViewTests(PlayerReportTestCase):
+    def test_add_player_sets_image_url_from_player_name(self):
+        response = self.client.post(
+            reverse('player_add'),
+            {
+                'name': 'New Striker',
+                'age': 22,
+                'position': 'ST',
+                'value': 1200000,
+                'join_date': '2026-07-01',
+                'overall': 78,
+                'form': Stats.FORM_AVERAGE,
+                'pace': 80,
+                'shooting': 77,
+                'passing': 65,
+                'defense': 35,
+                'dribbling': 76,
+            },
+        )
+
+        self.assertRedirects(response, reverse('my_players'))
+        player = Player.objects.get(name='New Striker')
+        self.assertEqual(player.image_url, 'New Striker.png')
 
 
 class PlayerGenerateReportViewTests(PlayerReportTestCase):

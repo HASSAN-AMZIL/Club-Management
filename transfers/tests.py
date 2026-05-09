@@ -64,12 +64,26 @@ class TransferListTests(TestCase):
             date=date(2026, 4, 12),
         )
 
-    def create_player(self, name, club, position, overall):
+    def create_player(
+        self,
+        name,
+        club,
+        position,
+        overall,
+        *,
+        age=24,
+        value=2300000,
+        pace=84,
+        shooting=82,
+        passing=79,
+        defense=58,
+        dribbling=81,
+    ):
         player = Player.objects.create(
             name=name,
-            age=24,
+            age=age,
             position=position,
-            value=2300000,
+            value=value,
             join_date=date(2024, 7, 12),
             image_url=f'{name}.png',
             club=club,
@@ -78,11 +92,11 @@ class TransferListTests(TestCase):
             player=player,
             overall=overall,
             form=Stats.FORM_GOOD,
-            pace=84,
-            shooting=82,
-            passing=79,
-            defense=58,
-            dribbling=81,
+            pace=pace,
+            shooting=shooting,
+            passing=passing,
+            defense=defense,
+            dribbling=dribbling,
         )
         return player
 
@@ -116,6 +130,7 @@ class TransferListTests(TestCase):
         self.assertContains(response, reverse('transfer_player_detail', args=[self.external_player.id]))
         self.assertContains(response, reverse('transfer_club_detail', args=[self.external_club.id]))
         self.assertContains(response, reverse('transfer_history'))
+        self.assertContains(response, 'Suggest Transfer')
 
     def test_transfer_search_matches_player_name_only(self):
         self.client.login(username='scout', password='password123')
@@ -144,6 +159,113 @@ class TransferListTests(TestCase):
         self.assertContains(response, 'No players match your search.')
         self.assertNotContains(response, self.external_player.name)
         self.assertNotContains(response, self.other_external_player.name)
+
+    def test_suggest_transfer_detects_weakest_area_and_returns_top_three(self):
+        top_candidate = self.create_player(
+            'Top Centre Back',
+            self.external_club,
+            'CB',
+            82,
+            value=4000000,
+            defense=90,
+        )
+        cheap_tie_candidate = self.create_player(
+            'Cheap Right Back',
+            self.external_club,
+            'RB',
+            91,
+            value=1000000,
+            defense=88,
+        )
+        expensive_tie_candidate = self.create_player(
+            'Expensive Wing Back',
+            self.external_club,
+            'LWB',
+            91,
+            value=5000000,
+            defense=88,
+        )
+        third_candidate = self.create_player(
+            'Defensive Midfielder',
+            self.other_external_club,
+            'CDM',
+            86,
+            value=2000000,
+            defense=84,
+        )
+        fourth_candidate = self.create_player(
+            'Fourth Defender',
+            self.other_external_club,
+            'LB',
+            80,
+            value=1500000,
+            defense=70,
+        )
+        expensive_candidate = self.create_player(
+            'Too Expensive Defender',
+            self.external_club,
+            'CB',
+            99,
+            value=20000000,
+            defense=99,
+        )
+        my_candidate = self.create_player(
+            'Home Centre Back',
+            self.my_club,
+            'CB',
+            99,
+            value=1000000,
+            defense=99,
+        )
+        self.client.login(username='scout', password='password123')
+
+        response = self.client.get(reverse('transfer_list'), {'suggest': '1'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Suggested transfers for weakest area: Defense')
+        self.assertContains(response, top_candidate.name)
+        self.assertContains(response, cheap_tie_candidate.name)
+        self.assertContains(response, expensive_tie_candidate.name)
+        self.assertNotContains(response, third_candidate.name)
+        self.assertNotContains(response, fourth_candidate.name)
+        self.assertNotContains(response, expensive_candidate.name)
+        self.assertNotContains(response, my_candidate.name)
+
+    def test_suggest_transfer_ignores_normal_search_filters(self):
+        suggested_player = self.create_player(
+            'Suggested Defender',
+            self.external_club,
+            'CB',
+            82,
+            defense=90,
+        )
+        self.client.login(username='scout', password='password123')
+
+        response = self.client.get(
+            reverse('transfer_list'),
+            {'suggest': '1', 'q': 'No Match', 'position': 'ST'},
+        )
+
+        self.assertContains(response, suggested_player.name)
+        self.assertNotContains(response, 'No players match your search.')
+
+    def test_suggest_transfer_requires_my_club_player_stats(self):
+        self.my_player.stats.delete()
+        self.client.login(username='scout', password='password123')
+
+        response = self.client.get(reverse('transfer_list'), {'suggest': '1'})
+
+        self.assertContains(response, 'Add player stats before requesting transfer suggestions.')
+        self.assertNotContains(response, self.external_player.name)
+
+    def test_suggest_transfer_shows_empty_when_no_affordable_candidates_exist(self):
+        self.client.login(username='scout', password='password123')
+
+        response = self.client.get(reverse('transfer_list'), {'suggest': '1'})
+
+        self.assertContains(response, 'Suggested transfers for weakest area: Defense')
+        self.assertContains(response, 'No affordable transfer suggestions found.')
+        self.assertNotContains(response, self.external_player.name)
 
     def test_read_only_player_detail_hides_mutating_actions(self):
         self.client.login(username='scout', password='password123')

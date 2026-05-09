@@ -17,6 +17,10 @@ def get_my_club():
     return Club.objects.select_related('league').order_by('id').first()
 
 
+def get_player_image_filename(player_name):
+    return f'{player_name.strip()}.png'
+
+
 @login_required
 def my_players_view(request):
     club = get_my_club()
@@ -137,6 +141,7 @@ def player_create_view(request):
             with transaction.atomic():
                 player = player_form.save(commit=False)
                 player.club = club
+                player.image_url = get_player_image_filename(player.name)
                 player.save()
 
                 stats = stats_form.save(commit=False)
@@ -179,6 +184,7 @@ def player_update_view(request, player_id):
             with transaction.atomic():
                 player = player_form.save(commit=False)
                 player.club = club
+                player.image_url = get_player_image_filename(player.name)
                 player.save()
 
                 stats = stats_form.save(commit=False)
