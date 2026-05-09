@@ -3,123 +3,8 @@
 
 {% block title %}{% if read_only %}{{ club.name }}{% else %}My Club{% endif %} | Football Scouting{% endblock %}
 
-{% block extra_css %}
-    .club-header {
-        display: grid;
-        grid-template-columns: 160px 1fr;
-        gap: 24px;
-        align-items: center;
-        margin-bottom: 24px;
-    }
-
-    .club-logo {
-        width: 160px;
-        height: 160px;
-        object-fit: contain;
-        border: 1px solid #dce5df;
-        border-radius: 8px;
-        background: #f8faf9;
-        padding: 14px;
-        box-sizing: border-box;
-    }
-
-    h2 {
-        margin: 0 0 8px;
-        font-size: 32px;
-    }
-
-    .meta {
-        margin: 0;
-        color: #617069;
-        line-height: 1.6;
-    }
-
-    .info-grid,
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-        gap: 14px;
-        margin-top: 18px;
-    }
-
-    .info-card,
-    .stat-card {
-        padding: 16px;
-        border-radius: 8px;
-        background: #f8faf9;
-        border: 1px solid #e1e8e4;
-    }
-
-    .info-card strong,
-    .stat-card strong {
-        display: block;
-        margin-bottom: 6px;
-        color: #617069;
-        font-size: 13px;
-        text-transform: uppercase;
-    }
-
-    .stat-card span {
-        font-size: 26px;
-        font-weight: bold;
-    }
-
-    form {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 16px;
-    }
-
-    label {
-        display: block;
-        margin-bottom: 6px;
-        font-weight: bold;
-    }
-
-    .form-control {
-        width: 100%;
-        box-sizing: border-box;
-        padding: 11px;
-        border: 1px solid #c8d5ce;
-        border-radius: 6px;
-        font-size: 15px;
-    }
-
-    .errorlist {
-        margin: 6px 0 0;
-        padding-left: 18px;
-        color: #9b1c1c;
-    }
-
-    .actions {
-        grid-column: 1 / -1;
-        display: flex;
-        gap: 12px;
-        align-items: center;
-        flex-wrap: wrap;
-        margin-top: 24px;
-    }
-
-    .button,
-    button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 11px 16px;
-        border: 0;
-        border-radius: 6px;
-        background: #146c43;
-        color: #ffffff;
-        font: inherit;
-        font-weight: bold;
-        cursor: pointer;
-    }
-
-    @media (max-width: 640px) {
-        .club-header {
-            grid-template-columns: 1fr;
-        }
-    }
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'css/my-club.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -132,12 +17,12 @@
                     class="club-logo"
                     src="{{ STATIC_PREFIX }}club/{{ club.logo_url }}"
                     alt="{{ club.name }} logo"
-                    onerror="this.onerror=null; this.src='{% static "club/default.png" %}';"
+                    onerror="this.onerror=null; this.src='{{ STATIC_PREFIX }}club/default.png';"
                 >
                 <div>
                     <h2>{{ club.name }}</h2>
                     <p class="meta">{{ club.city }}, {{ club.country }} &middot; {{ club.league.name }}</p>
-                    <p class="meta">Founded {{ club.founded_year }} &middot; Coach {{ club.coach }}</p>
+                    <p class="meta">Founded Year {{ club.founded_year }} &middot; Coach {{ club.coach }}</p>
                 </div>
             </div>
 
@@ -170,7 +55,7 @@
                     <span>{{ club.trophies_count }}</span>
                 </div>
                 <div class="stat-card">
-                    <strong>Founded</strong>
+                    <strong>Founded Year</strong>
                     <span>{{ club.founded_year }}</span>
                 </div>
             </div>

@@ -204,7 +204,7 @@
                 class="club-logo"
                 src="{{ STATIC_PREFIX }}club/{{ club.logo_url }}"
                 alt="{{ club.name }} logo"
-                onerror="this.onerror=null; this.src='{% static "club/default.png" %}';"
+                onerror="this.onerror=null; this.src='{{ STATIC_PREFIX }}club/default.png';"
             >
             <div>
                 <h2>{{ club.name }}</h2>

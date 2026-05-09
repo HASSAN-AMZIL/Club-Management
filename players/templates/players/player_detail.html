@@ -16,7 +16,7 @@
                 class="player-photo"
                 src="{{ STATIC_PREFIX }}players/{{ player.image_url }}"
                 alt="{{ player.name }}"
-                onerror="this.onerror=null; this.src='{% static "players/default.png" %}';"
+                onerror="this.onerror=null; this.src='{{ STATIC_PREFIX }}players/default.png';"
             >
             <div>
                 <h2>{{ player.name }}</h2>
