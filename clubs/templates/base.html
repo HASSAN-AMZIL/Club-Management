@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -117,6 +118,7 @@
 
         {% block extra_css %}{% endblock %}
     </style>
+    <link rel="stylesheet" href="{% static 'css/app-theme.css' %}">
 </head>
 <body>
     <div class="layout">
