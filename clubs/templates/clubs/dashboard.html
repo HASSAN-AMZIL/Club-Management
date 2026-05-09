@@ -1,23 +1,199 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Dashboard | Football Scouting{% endblock %}
 
 {% block extra_css %}
-    .welcome h2 {
-        margin: 0 0 12px;
-        font-size: 28px;
+    .dashboard-grid {
+        display: grid;
+        gap: 18px;
     }
 
-    .welcome p {
+    .club-summary {
+        display: grid;
+        grid-template-columns: 150px 1fr;
+        gap: 22px;
+        align-items: center;
+    }
+
+    .club-logo {
+        width: 150px;
+        height: 150px;
+        object-fit: contain;
+        border: 1px solid #dce5df;
+        border-radius: 8px;
+        background: #f8faf9;
+        padding: 14px;
+        box-sizing: border-box;
+    }
+
+    h2 {
+        margin: 0 0 8px;
+        font-size: 32px;
+    }
+
+    h3 {
+        margin: 0 0 14px;
+        font-size: 20px;
+    }
+
+    p {
         margin: 0;
         color: #617069;
         line-height: 1.6;
     }
+
+    .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+        gap: 14px;
+    }
+
+    .metric-card,
+    .section-card {
+        padding: 18px;
+        border-radius: 8px;
+        background: #f8faf9;
+        border: 1px solid #e1e8e4;
+    }
+
+    .metric-card strong {
+        display: block;
+        margin-bottom: 6px;
+        color: #617069;
+        font-size: 13px;
+        text-transform: uppercase;
+    }
+
+    .metric-card span {
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .content-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) minmax(260px, 0.8fr);
+        gap: 18px;
+    }
+
+    .transfer-list,
+    .risk-list {
+        display: grid;
+        gap: 10px;
+    }
+
+    .transfer-row,
+    .risk-row,
+    .top-player {
+        padding: 12px 0;
+        border-bottom: 1px solid #e1e8e4;
+    }
+
+    .transfer-row:last-child,
+    .risk-row:last-child {
+        border-bottom: 0;
+    }
+
+    .transfer-main,
+    .top-player strong,
+    .risk-row strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #1f2a24;
+        font-weight: bold;
+    }
+
+    .empty {
+        color: #617069;
+    }
+
+    @media (max-width: 760px) {
+        .club-summary,
+        .content-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 {% endblock %}
 
 {% block content %}
-    <section class="panel welcome">
-        <h2>Welcome, {{ request.user.username }}</h2>
-        <p>This is your club dashboard. Player, club, transfer, and scouting tools will be added here.</p>
-    </section>
+    {% get_static_prefix as STATIC_PREFIX %}
+
+    <div class="dashboard-grid">
+        <section class="panel club-summary">
+            <img
+                class="club-logo"
+                src="{{ STATIC_PREFIX }}club/{{ club.logo_url }}"
+                alt="{{ club.name }} logo"
+                onerror="this.onerror=null; this.src='{% static "club/default.png" %}';"
+            >
+            <div>
+                <h2>{{ club.name }}</h2>
+                <p>{{ club.city }}, {{ club.country }} &middot; {{ club.league.name }}</p>
+                <p>Founded {{ club.founded_year }} &middot; Coach {{ club.coach }}</p>
+                <p>{{ club.stadium }}</p>
+            </div>
+        </section>
+
+        <section class="metric-grid">
+            <div class="metric-card">
+                <strong>Players</strong>
+                <span>{{ player_count }}</span>
+            </div>
+            <div class="metric-card">
+                <strong>Squad Value</strong>
+                <span>{{ squad_value }}</span>
+            </div>
+            <div class="metric-card">
+                <strong>Avg Age</strong>
+                <span>{{ avg_age }}</span>
+            </div>
+            <div class="metric-card">
+                <strong>Trophies</strong>
+                <span>{{ club.trophies_count }}</span>
+            </div>
+        </section>
+
+        <section class="content-grid">
+            <div class="section-card">
+                <h3>Recent Transfers</h3>
+                {% if recent_transfers %}
+                    <div class="transfer-list">
+                        {% for transfer in recent_transfers %}
+                            <div class="transfer-row">
+                                <span class="transfer-main">{{ transfer.player.name }}</span>
+                                <p>{{ transfer.from_club.name }} &rarr; {{ transfer.to_club.name }}</p>
+                                <p>{{ transfer.price }} &middot; {{ transfer.date }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="empty">No recent transfers involving this club.</p>
+                {% endif %}
+            </div>
+
+            <div class="section-card">
+                <h3>Top Player</h3>
+                {% if top_player %}
+                    <div class="top-player">
+                        <strong>{{ top_player.name }}</strong>
+                        <p>{{ top_player.position }} &middot; Overall {{ top_player.stats.overall }}</p>
+                        <p>{{ top_player.value }}</p>
+                    </div>
+                {% else %}
+                    <p class="empty">No players available.</p>
+                {% endif %}
+
+                <div class="risk-list">
+                    <div class="risk-row">
+                        <strong>{{ older_players_count }} players are older than 30</strong>
+                        <p>Age risk in the squad.</p>
+                    </div>
+                    <div class="risk-row">
+                        <strong>{{ underperforming_count }} players underperforming</strong>
+                        <p>Form is marked as Bad.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
 {% endblock %}
