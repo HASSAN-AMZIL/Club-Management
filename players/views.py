@@ -1,13 +1,15 @@
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.text import slugify
 from django.views.decorators.http import require_POST
 
 from clubs.models import Club
 
 from .forms import PlayerForm, StatsForm
 from .models import Player, Stats
-from .services import ScoutingReportError, generate_scouting_report
+from .services import ScoutingReportError, build_player_report_pdf, generate_scouting_report
 
 
 def get_my_club():
@@ -95,6 +97,27 @@ def player_generate_report_view(request, player_id):
             'report_error': report_error,
         },
     )
+
+
+@login_required
+@require_POST
+def player_download_report_view(request, player_id):
+    club = get_my_club()
+
+    if club is None:
+        return redirect('my_club')
+
+    player = get_object_or_404(
+        Player.objects.select_related('club', 'club__league', 'stats'),
+        id=player_id,
+        club=club,
+    )
+    scouting_report = request.POST.get('scouting_report', '')
+    pdf = build_player_report_pdf(player, scouting_report=scouting_report)
+    filename = f'player-report-{slugify(player.name) or player.id}.pdf'
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
 
 
 @login_required

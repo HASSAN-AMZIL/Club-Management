@@ -162,7 +162,7 @@
                             <div class="transfer-row">
                                 <span class="transfer-main">{{ transfer.player.name }}</span>
                                 <p>{{ transfer.from_club.name }} &rarr; {{ transfer.to_club.name }}</p>
-                                <p>{{ transfer.price }} &middot; {{ transfer.date }}</p>
+                                <p>€{{ transfer.price }} &middot; {{ transfer.date }}</p>
                             </div>
                         {% endfor %}
                     </div>
@@ -177,7 +177,7 @@
                     <div class="top-player">
                         <strong>{{ top_player.name }}</strong>
                         <p>{{ top_player.position }} &middot; Overall {{ top_player.stats.overall }}</p>
-                        <p>{{ top_player.value }}</p>
+                        <p>€{{ top_player.value }}</p>
                     </div>
                 {% else %}
                     <p class="empty">No players available.</p>

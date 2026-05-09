@@ -150,7 +150,7 @@
                                         -
                                     {% endif %}
                                 </td>
-                                <td>{{ player.value }}</td>
+                                <td>€{{ player.value }}</td>
                                 <td><a href="{% url 'transfer_club_detail' player.club.id %}">{{ player.club.name }}</a></td>
                             </tr>
                         {% endfor %}

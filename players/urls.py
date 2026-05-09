@@ -7,6 +7,7 @@ urlpatterns = [
     path('my-players/add/', views.player_create_view, name='player_add'),
     path('my-players/<int:player_id>/', views.player_detail_view, name='player_detail'),
     path('my-players/<int:player_id>/generate-report/', views.player_generate_report_view, name='player_generate_report'),
+    path('my-players/<int:player_id>/download-report/', views.player_download_report_view, name='player_download_report'),
     path('my-players/<int:player_id>/edit/', views.player_update_view, name='player_edit'),
     path('my-players/<int:player_id>/delete/', views.player_delete_view, name='player_delete'),
 ]

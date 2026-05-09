@@ -155,6 +155,7 @@ class TransferListTests(TestCase):
         self.assertContains(response, 'Back to Transfers')
         self.assertContains(response, 'Generate Report')
         self.assertContains(response, reverse('transfer_player_generate_report', args=[self.external_player.id]))
+        self.assertNotContains(response, 'Download PDF Report')
         self.assertNotContains(response, 'Edit Player')
         self.assertNotContains(response, 'Delete Player')
 
@@ -171,6 +172,7 @@ class TransferListTests(TestCase):
         self.assertContains(response, 'Scouting Report')
         self.assertContains(response, report)
         self.assertContains(response, 'Back to Transfers')
+        self.assertNotContains(response, 'Download PDF Report')
         self.assertNotContains(response, 'Edit Player')
         self.assertNotContains(response, 'Delete Player')
 

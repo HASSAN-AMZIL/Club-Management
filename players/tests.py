@@ -59,7 +59,7 @@ class ScoutingReportPromptTests(PlayerReportTestCase):
         self.assertIn('Age: 24', prompt)
         self.assertIn('Position: ST', prompt)
         self.assertIn('Club: Atlas United', prompt)
-        self.assertIn('Price: 2300000', prompt)
+        self.assertIn('Price: €2300000', prompt)
         self.assertIn('- Overall: 84', prompt)
         self.assertIn('- Form: Good', prompt)
         self.assertIn('- Pace: 84', prompt)
@@ -149,3 +149,78 @@ class PlayerGenerateReportViewTests(PlayerReportTestCase):
             response,
             'Player stats are required before generating a scouting report.',
         )
+
+
+class PlayerDownloadReportViewTests(PlayerReportTestCase):
+    def test_download_report_requires_login(self):
+        self.client.logout()
+
+        response = self.client.post(reverse('player_download_report', args=[self.player.id]))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse('login'), response['Location'])
+
+    def test_player_detail_shows_download_pdf_button(self):
+        response = self.client.get(reverse('player_detail', args=[self.player.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Download PDF Report')
+        self.assertContains(response, reverse('player_download_report', args=[self.player.id]))
+
+    def test_download_report_is_limited_to_my_club_players(self):
+        other_club = Club.objects.create(
+            name='Rival Club',
+            league=self.league,
+            founded_year=2001,
+            country='Morocco',
+            city='Rabat',
+            stadium='Rival Arena',
+            coach='Rival Coach',
+            budget=1200000,
+            logo_url='rival.png',
+            trophies_count=1,
+        )
+        other_player = Player.objects.create(
+            name='Rival Player',
+            age=26,
+            position='CM',
+            value=1000000,
+            join_date=date(2023, 8, 1),
+            image_url='rival.png',
+            club=other_club,
+        )
+
+        response = self.client.post(reverse('player_download_report', args=[other_player.id]))
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_download_report_returns_pdf_attachment(self):
+        response = self.client.post(reverse('player_download_report', args=[self.player.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/pdf')
+        self.assertEqual(
+            response['Content-Disposition'],
+            'attachment; filename="player-report-amine-el-fassi.pdf"',
+        )
+        self.assertTrue(response.content.startswith(b'%PDF'))
+
+    def test_download_report_includes_submitted_ai_text(self):
+        report = 'Quick forward with strong pace and shooting for Atlas United.'
+
+        with patch('players.views.generate_scouting_report') as generate_report:
+            response = self.client.post(
+                reverse('player_download_report', args=[self.player.id]),
+                {'scouting_report': report},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        generate_report.assert_not_called()
+        self.assertIn(b'AI Scouting Report', response.content)
+        self.assertIn(report.encode('utf-8'), response.content)
+
+    def test_download_report_omits_ai_section_without_submitted_text(self):
+        response = self.client.post(reverse('player_download_report', args=[self.player.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(b'AI Scouting Report', response.content)

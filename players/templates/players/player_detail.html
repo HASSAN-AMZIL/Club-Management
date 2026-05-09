@@ -28,7 +28,7 @@
         <div class="info-grid">
             <div class="info-card">
                 <strong>Market Value</strong>
-                {{ player.value }}
+                €{{ player.value }}
             </div>
             <div class="info-card">
                 <strong>Club</strong>
@@ -84,6 +84,20 @@
                 <a class="button danger-button" href="{% url 'player_delete' player.id %}">Delete Player</a>
             {% endif %}
         </div>
+
+        {% if not read_only %}
+            <div class="actions pdf-actions">
+                <form
+                    class="inline-form pdf-form"
+                    method="post"
+                    action="{% url 'player_download_report' player.id %}"
+                >
+                    {% csrf_token %}
+                    <textarea name="scouting_report" hidden>{{ scouting_report|default:'' }}</textarea>
+                    <button class="button pdf-button" type="submit">Download PDF Report</button>
+                </form>
+            </div>
+        {% endif %}
     </section>
 
     <script>
