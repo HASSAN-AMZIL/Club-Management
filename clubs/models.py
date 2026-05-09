@@ -51,8 +51,8 @@ class Match(models.Model):
         on_delete=models.CASCADE,
         related_name='away_matches',
     )
-    club1_score = models.IntegerField()
-    club2_score = models.IntegerField()
+    club1_score = models.IntegerField(blank=True, null=True)
+    club2_score = models.IntegerField(blank=True, null=True)
     date = models.DateField()
 
     def __str__(self):

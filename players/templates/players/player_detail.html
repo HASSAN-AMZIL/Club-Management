@@ -214,16 +214,20 @@
         {% endif %}
 
         <div class="actions">
+            <form
+                class="inline-form report-form"
+                method="post"
+                action="{% if read_only %}{% url 'transfer_player_generate_report' player.id %}{% else %}{% url 'player_generate_report' player.id %}{% endif %}"
+            >
+                {% csrf_token %}
+                <button class="button report-button" type="submit">
+                    <span class="loading-spinner" aria-hidden="true"></span>
+                    <span class="button-text">Generate Report</span>
+                </button>
+            </form>
             {% if read_only %}
                 <a class="button" href="{% url 'transfer_list' %}">Back to Transfers</a>
             {% else %}
-                <form class="inline-form report-form" method="post" action="{% url 'player_generate_report' player.id %}">
-                    {% csrf_token %}
-                    <button class="button report-button" type="submit">
-                        <span class="loading-spinner" aria-hidden="true"></span>
-                        <span class="button-text">Generate Report</span>
-                    </button>
-                </form>
                 <a class="button" href="{% url 'player_edit' player.id %}">Edit Player</a>
                 <a class="danger" href="{% url 'player_delete' player.id %}">Delete Player</a>
                 <a href="{% url 'my_players' %}">Back to Players</a>

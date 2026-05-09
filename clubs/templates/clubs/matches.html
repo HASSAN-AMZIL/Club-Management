@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}Matches | Football Scouting{% endblock %}
+
+{% block extra_css %}
+    .page-title {
+        margin-bottom: 22px;
+    }
+
+    h2 {
+        margin: 0 0 6px;
+        font-size: 28px;
+    }
+
+    h3 {
+        margin: 26px 0 14px;
+        font-size: 20px;
+        text-align: center;
+    }
+
+    p {
+        margin: 0;
+        color: #617069;
+    }
+
+    .match-list {
+        display: grid;
+        gap: 0;
+    }
+
+    .match-row {
+        display: grid;
+        grid-template-columns: 150px minmax(0, 1fr) 90px minmax(0, 1fr) 150px;
+        align-items: center;
+        padding: 13px 10px;
+        border-bottom: 1px solid #e1e8e4;
+    }
+
+    .match-score {
+        text-align: center;
+        font-weight: bold;
+        white-space: nowrap;
+    }
+
+    .match-date {
+        white-space: nowrap;
+        color: #617069;
+    }
+
+    .match-club {
+        min-width: 0;
+    }
+
+    .match-home {
+        text-align: right;
+    }
+
+    .match-away {
+        text-align: left;
+    }
+
+    .empty {
+        padding: 22px;
+        background: #f8faf9;
+        border: 1px solid #e1e8e4;
+        border-radius: 8px;
+    }
+{% endblock %}
+
+{% block content %}
+    <section class="panel">
+        <div class="page-title">
+            <h2>Matches</h2>
+            <p>{{ club.name }}</p>
+        </div>
+
+        <h3>Next Matches</h3>
+        {% if next_matches %}
+            <div class="match-list">
+                {% for match in next_matches %}
+                    <div class="match-row">
+                        <span class="match-date">{{ match.date }}</span>
+                        <span class="match-club match-home">{{ match.club1.name }}</span>
+                        <span class="match-score">-</span>
+                        <span class="match-club match-away">{{ match.club2.name }}</span>
+                        <span></span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty">No upcoming matches available.</div>
+        {% endif %}
+
+        <h3>Match History</h3>
+        {% if match_history %}
+            <div class="match-list">
+                {% for match in match_history %}
+                    <div class="match-row">
+                        <span class="match-date">{{ match.date }}</span>
+                        <span class="match-club match-home">{{ match.club1.name }}</span>
+                        <span class="match-score">{{ match.club1_score }} - {{ match.club2_score }}</span>
+                        <span class="match-club match-away">{{ match.club2.name }}</span>
+                        <span></span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty">No match history available.</div>
+        {% endif %}
+    </section>
+{% endblock %}

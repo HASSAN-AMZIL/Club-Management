@@ -290,6 +290,20 @@ class Command(BaseCommand):
                 'club2_score': 1,
                 'date': date(2026, 4, 9),
             },
+            {
+                'club1': clubs['Manchester City'],
+                'club2': clubs['Borussia Dortmund'],
+                'club1_score': None,
+                'club2_score': None,
+                'date': date(2026, 5, 22),
+            },
+            {
+                'club1': clubs['Real Madrid'],
+                'club2': clubs['Manchester City'],
+                'club1_score': None,
+                'club2_score': None,
+                'date': date(2026, 6, 4),
+            },
         ]
 
         for data in matches_data:

@@ -1,8 +1,10 @@
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.shortcuts import redirect, render
+from django.utils import timezone
 
 from .forms import ClubForm
-from .models import Club
+from .models import Club, Match
 
 
 @login_required
@@ -30,5 +32,28 @@ def my_club_view(request):
             'club': club,
             'edit_mode': edit_mode,
             'form': form,
+        },
+    )
+
+
+@login_required
+def matches_view(request):
+    club = Club.objects.select_related('league').order_by('id').first()
+
+    if club is None:
+        return redirect('my_club')
+
+    today = timezone.localdate()
+    my_matches = Match.objects.filter(Q(club1=club) | Q(club2=club)).select_related('club1', 'club2')
+    match_history = my_matches.filter(date__lt=today).order_by('-date')
+    next_matches = my_matches.filter(date__gte=today).order_by('date')
+
+    return render(
+        request,
+        'clubs/matches.html',
+        {
+            'club': club,
+            'match_history': match_history,
+            'next_matches': next_matches,
         },
     )

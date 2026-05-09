@@ -7,7 +7,7 @@
         display: flex;
         justify-content: space-between;
         gap: 16px;
-        align-items: end;
+        align-items: center;
         margin-bottom: 22px;
         flex-wrap: wrap;
     }
@@ -27,15 +27,22 @@
         gap: 10px;
         align-items: center;
         flex-wrap: wrap;
+        margin-bottom: 22px;
     }
 
     .form-control {
-        width: min(340px, 100%);
+        flex: 1 1 280px;
+        max-width: 420px;
         box-sizing: border-box;
         padding: 11px;
         border: 1px solid #c8d5ce;
         border-radius: 6px;
         font-size: 15px;
+    }
+
+    .position-control {
+        flex: 0 0 140px;
+        max-width: 140px;
     }
 
     button,
@@ -93,21 +100,29 @@
                 <p>{{ club.name }}</p>
             </div>
 
-            <form class="search-form" method="get">
-                <input
-                    class="form-control"
-                    type="search"
-                    name="q"
-                    value="{{ query }}"
-                    placeholder="Search players, teams, positions"
-                    aria-label="Search players, teams, positions"
-                >
-                <button type="submit">Search</button>
-                {% if query %}
-                    <a href="{% url 'transfer_list' %}">Clear</a>
-                {% endif %}
-            </form>
+            <a class="button" href="{% url 'transfer_history' %}">Transfer History</a>
         </div>
+
+        <form class="search-form" method="get">
+            <input
+                class="form-control"
+                type="search"
+                name="q"
+                value="{{ query }}"
+                placeholder="Search by player name"
+                aria-label="Search by player name"
+            >
+            <select class="form-control position-control" name="position" aria-label="Filter by position">
+                <option value="">All positions</option>
+                {% for value, label in position_choices %}
+                    <option value="{{ value }}"{% if selected_position == value %} selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Search</button>
+            {% if query or selected_position %}
+                <a href="{% url 'transfer_list' %}">Clear</a>
+            {% endif %}
+        </form>
 
         {% if players %}
             <div class="table-wrap">
@@ -144,7 +159,7 @@
             </div>
         {% else %}
             <div class="empty">
-                {% if query %}
+                {% if query or selected_position %}
                     No players match your search.
                 {% else %}
                     No transfer targets available.

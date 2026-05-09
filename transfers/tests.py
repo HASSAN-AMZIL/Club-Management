@@ -1,4 +1,5 @@
 from datetime import date
+from unittest.mock import patch
 
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -6,6 +7,7 @@ from django.urls import reverse
 
 from clubs.models import Club, League
 from players.models import Player, Stats
+from .models import Transfer
 
 
 class TransferListTests(TestCase):
@@ -54,6 +56,13 @@ class TransferListTests(TestCase):
         self.my_player = self.create_player('Home Striker', self.my_club, 'ST', 81)
         self.external_player = self.create_player('Target Midfielder', self.external_club, 'CM', 88)
         self.other_external_player = self.create_player('Wide Runner', self.other_external_club, 'LW', 77)
+        self.transfer = Transfer.objects.create(
+            player=self.external_player,
+            from_club=self.external_club,
+            to_club=self.my_club,
+            price=12000000,
+            date=date(2026, 4, 12),
+        )
 
     def create_player(self, name, club, position, overall):
         player = Player.objects.create(
@@ -106,20 +115,35 @@ class TransferListTests(TestCase):
         self.assertContains(response, 'Madrid Stars')
         self.assertContains(response, reverse('transfer_player_detail', args=[self.external_player.id]))
         self.assertContains(response, reverse('transfer_club_detail', args=[self.external_club.id]))
+        self.assertContains(response, reverse('transfer_history'))
 
-    def test_transfer_search_matches_player_team_and_position(self):
+    def test_transfer_search_matches_player_name_only(self):
         self.client.login(username='scout', password='password123')
 
         name_response = self.client.get(reverse('transfer_list'), {'q': 'Target'})
         team_response = self.client.get(reverse('transfer_list'), {'q': 'Sevilla'})
-        position_response = self.client.get(reverse('transfer_list'), {'q': 'CM'})
 
         self.assertContains(name_response, self.external_player.name)
         self.assertNotContains(name_response, self.other_external_player.name)
-        self.assertContains(team_response, self.other_external_player.name)
+        self.assertNotContains(team_response, self.other_external_player.name)
         self.assertNotContains(team_response, self.external_player.name)
+
+    def test_transfer_position_filter_matches_position_option(self):
+        self.client.login(username='scout', password='password123')
+
+        position_response = self.client.get(reverse('transfer_list'), {'position': 'CM'})
+
         self.assertContains(position_response, self.external_player.name)
         self.assertNotContains(position_response, self.other_external_player.name)
+
+    def test_transfer_search_and_position_filter_can_combine(self):
+        self.client.login(username='scout', password='password123')
+
+        response = self.client.get(reverse('transfer_list'), {'q': 'Target', 'position': 'LW'})
+
+        self.assertContains(response, 'No players match your search.')
+        self.assertNotContains(response, self.external_player.name)
+        self.assertNotContains(response, self.other_external_player.name)
 
     def test_read_only_player_detail_hides_mutating_actions(self):
         self.client.login(username='scout', password='password123')
@@ -129,7 +153,24 @@ class TransferListTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.external_player.name)
         self.assertContains(response, 'Back to Transfers')
-        self.assertNotContains(response, 'Generate Report')
+        self.assertContains(response, 'Generate Report')
+        self.assertContains(response, reverse('transfer_player_generate_report', args=[self.external_player.id]))
+        self.assertNotContains(response, 'Edit Player')
+        self.assertNotContains(response, 'Delete Player')
+
+    def test_read_only_player_detail_can_generate_report(self):
+        self.client.login(username='scout', password='password123')
+        report = 'Balanced midfielder with good technical quality.'
+        url = reverse('transfer_player_generate_report', args=[self.external_player.id])
+
+        with patch('transfers.views.generate_scouting_report', return_value=report) as generate_report:
+            response = self.client.post(url)
+
+        self.assertEqual(response.status_code, 200)
+        generate_report.assert_called_once()
+        self.assertContains(response, 'Scouting Report')
+        self.assertContains(response, report)
+        self.assertContains(response, 'Back to Transfers')
         self.assertNotContains(response, 'Edit Player')
         self.assertNotContains(response, 'Delete Player')
 
@@ -143,3 +184,25 @@ class TransferListTests(TestCase):
         self.assertContains(response, 'Back to Transfers')
         self.assertNotContains(response, 'View Players')
         self.assertNotContains(response, 'Edit Club')
+
+    def test_transfer_history_requires_login(self):
+        response = self.client.get(reverse('transfer_history'))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse('login'), response['Location'])
+
+    def test_transfer_history_is_read_only(self):
+        self.client.login(username='scout', password='password123')
+
+        response = self.client.get(reverse('transfer_history'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Transfer History')
+        self.assertContains(response, self.external_player.name)
+        self.assertContains(response, self.external_club.name)
+        self.assertContains(response, self.my_club.name)
+        self.assertContains(response, '12000000')
+        self.assertContains(response, 'April 12, 2026')
+        self.assertContains(response, 'Back to Transfers')
+        self.assertNotContains(response, 'Edit')
+        self.assertNotContains(response, 'Delete')

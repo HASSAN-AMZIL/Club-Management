@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}Transfer History | Football Scouting{% endblock %}
+
+{% block extra_css %}
+    .page-title {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: center;
+        margin-bottom: 22px;
+        flex-wrap: wrap;
+    }
+
+    h2 {
+        margin: 0 0 6px;
+        font-size: 28px;
+    }
+
+    p {
+        margin: 0;
+        color: #617069;
+    }
+
+    .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 11px 16px;
+        border-radius: 6px;
+        background: #146c43;
+        color: #ffffff;
+        font-weight: bold;
+    }
+
+    .table-wrap {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 760px;
+    }
+
+    th,
+    td {
+        padding: 13px 10px;
+        border-bottom: 1px solid #e1e8e4;
+        text-align: left;
+        vertical-align: top;
+    }
+
+    th {
+        font-size: 13px;
+        color: #617069;
+        text-transform: uppercase;
+    }
+
+    .empty {
+        padding: 22px;
+        background: #f8faf9;
+        border: 1px solid #e1e8e4;
+        border-radius: 8px;
+    }
+{% endblock %}
+
+{% block content %}
+    <section class="panel">
+        <div class="page-title">
+            <div>
+                <h2>Transfer History</h2>
+                <p>{{ club.name }}</p>
+            </div>
+            <a class="button" href="{% url 'transfer_list' %}">Back to Transfers</a>
+        </div>
+
+        {% if transfers %}
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Player</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Price</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transfer in transfers %}
+                            <tr>
+                                <td>{{ transfer.player.name }}</td>
+                                <td>{{ transfer.from_club.name }}</td>
+                                <td>{{ transfer.to_club.name }}</td>
+                                <td>{{ transfer.price }}</td>
+                                <td>{{ transfer.date }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty">No transfer history available.</div>
+        {% endif %}
+    </section>
+{% endblock %}
