@@ -3,7 +3,7 @@ from datetime import date
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from clubs.models import Club, Match
+from clubs.models import Club, League, Match
 from players.models import Player, Stats
 from transfers.models import Transfer
 
@@ -26,17 +26,39 @@ class Command(BaseCommand):
             Player.objects.all().delete()
             Club.objects.all().delete()
 
-        clubs = self.create_clubs()
+        leagues = self.create_leagues()
+        clubs = self.create_clubs(leagues)
         players = self.create_players(clubs)
         self.create_matches(clubs)
         self.create_transfers(clubs, players)
 
         self.stdout.write(self.style.SUCCESS('Demo data loaded successfully.'))
 
-    def create_clubs(self):
+    def create_leagues(self):
+        leagues_data = [
+            {'name': 'Premier League', 'country': 'England'},
+            {'name': 'La Liga', 'country': 'Spain'},
+            {'name': 'Serie A', 'country': 'Italy'},
+            {'name': 'Bundesliga', 'country': 'Germany'},
+            {'name': 'Ligue 1', 'country': 'France'},
+        ]
+
+        leagues = {}
+        for data in leagues_data:
+            league, _ = League.objects.update_or_create(
+                name=data['name'],
+                country=data['country'],
+                defaults=data,
+            )
+            leagues[league.name] = league
+
+        return leagues
+
+    def create_clubs(self, leagues):
         clubs_data = [
             {
                 'name': 'Manchester City',
+                'league': leagues['Premier League'],
                 'founded_year': 1880,
                 'country': 'England',
                 'city': 'Manchester',
@@ -48,6 +70,7 @@ class Command(BaseCommand):
             },
             {
                 'name': 'Real Madrid',
+                'league': leagues['La Liga'],
                 'founded_year': 1902,
                 'country': 'Spain',
                 'city': 'Madrid',
@@ -59,6 +82,7 @@ class Command(BaseCommand):
             },
             {
                 'name': 'Borussia Dortmund',
+                'league': leagues['Bundesliga'],
                 'founded_year': 1909,
                 'country': 'Germany',
                 'city': 'Dortmund',
@@ -90,7 +114,15 @@ class Command(BaseCommand):
                 'join_date': date(2022, 7, 1),
                 'image_url': 'Erling Haaland.png',
                 'club': clubs['Manchester City'],
-                'stats': {'pace': 89, 'shooting': 94, 'passing': 66, 'defense': 45, 'dribbling': 80},
+                'stats': {
+                    'overall': 91,
+                    'form': Stats.FORM_GOOD,
+                    'pace': 89,
+                    'shooting': 94,
+                    'passing': 66,
+                    'defense': 45,
+                    'dribbling': 80,
+                },
             },
             {
                 'name': 'Phil Foden',
@@ -100,7 +132,15 @@ class Command(BaseCommand):
                 'join_date': date(2017, 7, 1),
                 'image_url': 'Phil Foden.png',
                 'club': clubs['Manchester City'],
-                'stats': {'pace': 82, 'shooting': 84, 'passing': 86, 'defense': 58, 'dribbling': 89},
+                'stats': {
+                    'overall': 87,
+                    'form': Stats.FORM_GOOD,
+                    'pace': 82,
+                    'shooting': 84,
+                    'passing': 86,
+                    'defense': 58,
+                    'dribbling': 89,
+                },
             },
             {
                 'name': 'Rodri',
@@ -110,7 +150,15 @@ class Command(BaseCommand):
                 'join_date': date(2019, 7, 4),
                 'image_url': 'Rodri.png',
                 'club': clubs['Manchester City'],
-                'stats': {'pace': 66, 'shooting': 80, 'passing': 90, 'defense': 87, 'dribbling': 84},
+                'stats': {
+                    'overall': 89,
+                    'form': Stats.FORM_AVERAGE,
+                    'pace': 66,
+                    'shooting': 80,
+                    'passing': 90,
+                    'defense': 87,
+                    'dribbling': 84,
+                },
             },
             {
                 'name': 'Ruben Dias',
@@ -120,7 +168,15 @@ class Command(BaseCommand):
                 'join_date': date(2020, 9, 29),
                 'image_url': 'Ruben Dias.png',
                 'club': clubs['Manchester City'],
-                'stats': {'pace': 67, 'shooting': 38, 'passing': 77, 'defense': 89, 'dribbling': 69},
+                'stats': {
+                    'overall': 86,
+                    'form': Stats.FORM_AVERAGE,
+                    'pace': 67,
+                    'shooting': 38,
+                    'passing': 77,
+                    'defense': 89,
+                    'dribbling': 69,
+                },
             },
             {
                 'name': 'Jeremy Doku',
@@ -130,7 +186,15 @@ class Command(BaseCommand):
                 'join_date': date(2023, 8, 24),
                 'image_url': 'Jeremy Doku.png',
                 'club': clubs['Manchester City'],
-                'stats': {'pace': 91, 'shooting': 75, 'passing': 77, 'defense': 39, 'dribbling': 90},
+                'stats': {
+                    'overall': 82,
+                    'form': Stats.FORM_GOOD,
+                    'pace': 91,
+                    'shooting': 75,
+                    'passing': 77,
+                    'defense': 39,
+                    'dribbling': 90,
+                },
             },
             {
                 'name': 'Jude Bellingham',
@@ -140,7 +204,15 @@ class Command(BaseCommand):
                 'join_date': date(2023, 7, 1),
                 'image_url': 'Jude Bellingham.png',
                 'club': clubs['Real Madrid'],
-                'stats': {'pace': 80, 'shooting': 86, 'passing': 87, 'defense': 78, 'dribbling': 88},
+                'stats': {
+                    'overall': 90,
+                    'form': Stats.FORM_GOOD,
+                    'pace': 80,
+                    'shooting': 86,
+                    'passing': 87,
+                    'defense': 78,
+                    'dribbling': 88,
+                },
             },
             {
                 'name': 'Vinicius Junior',
@@ -150,7 +222,15 @@ class Command(BaseCommand):
                 'join_date': date(2018, 7, 12),
                 'image_url': 'Vinicius Junior.png',
                 'club': clubs['Real Madrid'],
-                'stats': {'pace': 95, 'shooting': 85, 'passing': 81, 'defense': 36, 'dribbling': 93},
+                'stats': {
+                    'overall': 89,
+                    'form': Stats.FORM_GOOD,
+                    'pace': 95,
+                    'shooting': 85,
+                    'passing': 81,
+                    'defense': 36,
+                    'dribbling': 93,
+                },
             },
             {
                 'name': 'Brahim Diaz',
@@ -160,7 +240,15 @@ class Command(BaseCommand):
                 'join_date': date(2019, 1, 6),
                 'image_url': 'Brahim Diaz.png',
                 'club': clubs['Real Madrid'],
-                'stats': {'pace': 82, 'shooting': 79, 'passing': 81, 'defense': 43, 'dribbling': 86},
+                'stats': {
+                    'overall': 82,
+                    'form': Stats.FORM_AVERAGE,
+                    'pace': 82,
+                    'shooting': 79,
+                    'passing': 81,
+                    'defense': 43,
+                    'dribbling': 86,
+                },
             },
         ]
 

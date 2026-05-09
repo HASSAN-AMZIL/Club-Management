@@ -5,8 +5,10 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
-from clubs.models import Club
+from clubs.forms import ClubForm
+from clubs.models import Club, League
 
+from .forms import StatsForm
 from .models import Player, Stats
 from .services import ScoutingReportError, build_scouting_report_prompt
 
@@ -15,8 +17,10 @@ class PlayerReportTestCase(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='scout', password='password123')
         self.client.login(username='scout', password='password123')
+        self.league = League.objects.get(name='Premier League', country='England')
         self.club = Club.objects.create(
             name='Atlas United',
+            league=self.league,
             founded_year=1998,
             country='Morocco',
             city='Casablanca',
@@ -37,6 +41,8 @@ class PlayerReportTestCase(TestCase):
         )
         self.stats = Stats.objects.create(
             player=self.player,
+            overall=84,
+            form=Stats.FORM_GOOD,
             pace=84,
             shooting=82,
             passing=69,
@@ -54,11 +60,53 @@ class ScoutingReportPromptTests(PlayerReportTestCase):
         self.assertIn('Position: ST', prompt)
         self.assertIn('Club: Atlas United', prompt)
         self.assertIn('Price: 2300000', prompt)
+        self.assertIn('- Overall: 84', prompt)
+        self.assertIn('- Form: Good', prompt)
         self.assertIn('- Pace: 84', prompt)
         self.assertIn('- Shooting: 82', prompt)
         self.assertIn('- Passing: 69', prompt)
         self.assertIn('- Defense: 38', prompt)
         self.assertIn('- Dribbling: 81', prompt)
+
+
+class PlayerStatsFormTests(TestCase):
+    def test_stats_form_accepts_overall_and_form(self):
+        form = StatsForm(
+            data={
+                'overall': 84,
+                'form': Stats.FORM_GOOD,
+                'pace': 84,
+                'shooting': 82,
+                'passing': 69,
+                'defense': 38,
+                'dribbling': 81,
+            }
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+        stats = form.save(commit=False)
+        self.assertEqual(stats.overall, 84)
+        self.assertEqual(stats.form, Stats.FORM_GOOD)
+
+
+class ClubFormTests(TestCase):
+    def test_club_form_requires_league(self):
+        form = ClubForm(
+            data={
+                'name': 'Atlas United',
+                'founded_year': 1998,
+                'country': 'Morocco',
+                'city': 'Casablanca',
+                'stadium': 'Atlas Arena',
+                'coach': 'Youssef Amrani',
+                'budget': 8500000,
+                'logo_url': 'https://placehold.co/300x300?text=Atlas+United',
+                'trophies_count': 7,
+            }
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertIn('league', form.errors)
 
 
 class PlayerGenerateReportViewTests(PlayerReportTestCase):

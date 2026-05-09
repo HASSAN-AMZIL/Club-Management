@@ -8,6 +8,7 @@ class ClubForm(forms.ModelForm):
         model = Club
         fields = [
             'name',
+            'league',
             'founded_year',
             'country',
             'city',
@@ -19,6 +20,7 @@ class ClubForm(forms.ModelForm):
         ]
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'league': forms.Select(attrs={'class': 'form-control'}),
             'founded_year': forms.NumberInput(attrs={'class': 'form-control'}),
             'country': forms.TextInput(attrs={'class': 'form-control'}),
             'city': forms.TextInput(attrs={'class': 'form-control'}),

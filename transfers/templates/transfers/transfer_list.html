@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 
-{% block title %}My Players | Football Scouting{% endblock %}
+{% block title %}Transfers | Football Scouting{% endblock %}
 
 {% block extra_css %}
     .page-title {
         display: flex;
         justify-content: space-between;
         gap: 16px;
-        align-items: center;
+        align-items: end;
         margin-bottom: 22px;
         flex-wrap: wrap;
     }
@@ -22,12 +22,35 @@
         color: #617069;
     }
 
+    .search-form {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .form-control {
+        width: min(340px, 100%);
+        box-sizing: border-box;
+        padding: 11px;
+        border: 1px solid #c8d5ce;
+        border-radius: 6px;
+        font-size: 15px;
+    }
+
+    button,
     .button {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         padding: 11px 16px;
+        border: 0;
         border-radius: 6px;
         background: #146c43;
         color: #ffffff;
+        font: inherit;
+        font-weight: bold;
+        cursor: pointer;
     }
 
     .table-wrap {
@@ -37,7 +60,7 @@
     table {
         width: 100%;
         border-collapse: collapse;
-        min-width: 840px;
+        min-width: 760px;
     }
 
     th,
@@ -60,26 +83,30 @@
         border: 1px solid #e1e8e4;
         border-radius: 8px;
     }
-
 {% endblock %}
 
 {% block content %}
     <section class="panel">
         <div class="page-title">
             <div>
-                <h2>My Players</h2>
-                {% if club %}
-                    <p>{{ club.name }}</p>
-                {% else %}
-                    <p>Create your club before adding players.</p>
-                {% endif %}
+                <h2>Transfers</h2>
+                <p>{{ club.name }}</p>
             </div>
 
-            {% if club %}
-                <a class="button" href="{% url 'player_add' %}">Add Player</a>
-            {% else %}
-                <a class="button" href="{% url 'my_club' %}">Create Club</a>
-            {% endif %}
+            <form class="search-form" method="get">
+                <input
+                    class="form-control"
+                    type="search"
+                    name="q"
+                    value="{{ query }}"
+                    placeholder="Search players, teams, positions"
+                    aria-label="Search players, teams, positions"
+                >
+                <button type="submit">Search</button>
+                {% if query %}
+                    <a href="{% url 'transfer_list' %}">Clear</a>
+                {% endif %}
+            </form>
         </div>
 
         {% if players %}
@@ -91,27 +118,25 @@
                             <th>Age</th>
                             <th>Position</th>
                             <th>Overall</th>
-                            <th>Form</th>
                             <th>Value</th>
-                            <th>Join Date</th>
-                            <th>Actions</th>
+                            <th>Team</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for player in players %}
                             <tr>
-                                <td><a href="{% url 'player_detail' player.id %}">{{ player.name }}</a></td>
+                                <td><a href="{% url 'transfer_player_detail' player.id %}">{{ player.name }}</a></td>
                                 <td>{{ player.age }}</td>
                                 <td>{{ player.position }}</td>
-                                <td>{{ player.stats.overall }}</td>
-                                <td>{{ player.stats.form }}</td>
-                                <td>{{ player.value }}</td>
-                                <td>{{ player.join_date }}</td>
                                 <td>
-                                    <a href="{% url 'player_edit' player.id %}">Edit</a>
-                                    |
-                                    <a href="{% url 'player_delete' player.id %}">Delete</a>
+                                    {% if player.stats %}
+                                        {{ player.stats.overall }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
                                 </td>
+                                <td>{{ player.value }}</td>
+                                <td><a href="{% url 'transfer_club_detail' player.club.id %}">{{ player.club.name }}</a></td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -119,10 +144,10 @@
             </div>
         {% else %}
             <div class="empty">
-                {% if club %}
-                    No players added yet.
+                {% if query %}
+                    No players match your search.
                 {% else %}
-                    No club exists yet.
+                    No transfer targets available.
                 {% endif %}
             </div>
         {% endif %}

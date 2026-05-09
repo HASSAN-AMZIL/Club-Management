@@ -38,12 +38,23 @@ class Player(models.Model):
 
 
 class Stats(models.Model):
+    FORM_GOOD = 'Good'
+    FORM_AVERAGE = 'Average'
+    FORM_BAD = 'Bad'
+    FORM_CHOICES = [
+        (FORM_GOOD, 'Good'),
+        (FORM_AVERAGE, 'Average'),
+        (FORM_BAD, 'Bad'),
+    ]
+
     id = models.AutoField(primary_key=True)
     player = models.OneToOneField(
         Player,
         on_delete=models.CASCADE,
         related_name='stats',
     )
+    overall = models.IntegerField(default=0)
+    form = models.CharField(max_length=7, choices=FORM_CHOICES, default=FORM_AVERAGE)
     pace = models.IntegerField()
     shooting = models.IntegerField()
     passing = models.IntegerField()

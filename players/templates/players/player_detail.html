@@ -190,6 +190,8 @@
 
         {% if player.stats %}
             <div class="stats-grid">
+                <div class="stat-card"><strong>Overall</strong><span>{{ player.stats.overall }}</span></div>
+                <div class="stat-card"><strong>Form</strong><span>{{ player.stats.form }}</span></div>
                 <div class="stat-card"><strong>Pace</strong><span>{{ player.stats.pace }}</span></div>
                 <div class="stat-card"><strong>Shooting</strong><span>{{ player.stats.shooting }}</span></div>
                 <div class="stat-card"><strong>Passing</strong><span>{{ player.stats.passing }}</span></div>
@@ -212,16 +214,20 @@
         {% endif %}
 
         <div class="actions">
-            <form class="inline-form report-form" method="post" action="{% url 'player_generate_report' player.id %}">
-                {% csrf_token %}
-                <button class="button report-button" type="submit">
-                    <span class="loading-spinner" aria-hidden="true"></span>
-                    <span class="button-text">Generate Report</span>
-                </button>
-            </form>
-            <a class="button" href="{% url 'player_edit' player.id %}">Edit Player</a>
-            <a class="danger" href="{% url 'player_delete' player.id %}">Delete Player</a>
-            <a href="{% url 'my_players' %}">Back to Players</a>
+            {% if read_only %}
+                <a class="button" href="{% url 'transfer_list' %}">Back to Transfers</a>
+            {% else %}
+                <form class="inline-form report-form" method="post" action="{% url 'player_generate_report' player.id %}">
+                    {% csrf_token %}
+                    <button class="button report-button" type="submit">
+                        <span class="loading-spinner" aria-hidden="true"></span>
+                        <span class="button-text">Generate Report</span>
+                    </button>
+                </form>
+                <a class="button" href="{% url 'player_edit' player.id %}">Edit Player</a>
+                <a class="danger" href="{% url 'player_delete' player.id %}">Delete Player</a>
+                <a href="{% url 'my_players' %}">Back to Players</a>
+            {% endif %}
         </div>
     </section>
 

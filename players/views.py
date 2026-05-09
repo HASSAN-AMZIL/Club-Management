@@ -11,7 +11,7 @@ from .services import ScoutingReportError, generate_scouting_report
 
 
 def get_my_club():
-    return Club.objects.order_by('id').first()
+    return Club.objects.select_related('league').order_by('id').first()
 
 
 @login_required

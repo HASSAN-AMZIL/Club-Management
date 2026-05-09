@@ -28,6 +28,8 @@ Club: {club_name}
 Price: {price}
 
 Stats:
+- Overall: {overall}
+- Form: {form}
 - Pace: {pace}
 - Shooting: {shooting}
 - Passing: {passing}
@@ -52,6 +54,8 @@ def build_scouting_report_prompt(player, stats):
         position=player.position,
         club_name=player.club.name,
         price=player.value,
+        overall=stats.overall,
+        form=stats.form,
         pace=stats.pace,
         shooting=stats.shooting,
         passing=stats.passing,

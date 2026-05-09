@@ -1,9 +1,31 @@
 from django.db import models
 
 
+class League(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100)
+    country = models.CharField(max_length=100)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'country'],
+                name='unique_league_name_country',
+            ),
+        ]
+
+    def __str__(self):
+        return self.name
+
+
 class Club(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
+    league = models.ForeignKey(
+        League,
+        on_delete=models.PROTECT,
+        related_name='clubs',
+    )
     founded_year = models.IntegerField()
     country = models.CharField(max_length=100)
     city = models.CharField(max_length=100)

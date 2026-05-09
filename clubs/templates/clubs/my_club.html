@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}My Club | Football Scouting{% endblock %}
+{% block title %}{% if read_only %}{{ club.name }}{% else %}My Club{% endif %} | Football Scouting{% endblock %}
 
 {% block extra_css %}
     .club-header {
@@ -136,7 +136,7 @@
                 >
                 <div>
                     <h2>{{ club.name }}</h2>
-                    <p class="meta">{{ club.city }}, {{ club.country }}</p>
+                    <p class="meta">{{ club.city }}, {{ club.country }} &middot; {{ club.league.name }}</p>
                     <p class="meta">Founded {{ club.founded_year }} &middot; Coach {{ club.coach }}</p>
                 </div>
             </div>
@@ -153,6 +153,10 @@
                 <div class="info-card">
                     <strong>Country</strong>
                     {{ club.country }}
+                </div>
+                <div class="info-card">
+                    <strong>League</strong>
+                    {{ club.league.name }}
                 </div>
             </div>
 
@@ -172,9 +176,13 @@
             </div>
 
             <div class="actions">
-                <a class="button" href="{% url 'my_players' %}">View Players</a>
-                <a class="button" href="{% url 'my_club' %}?edit=1">Edit Club</a>
-                <a href="{% url 'dashboard' %}">Back to Dashboard</a>
+                {% if read_only %}
+                    <a class="button" href="{% url 'transfer_list' %}">Back to Transfers</a>
+                {% else %}
+                    <a class="button" href="{% url 'my_players' %}">View Players</a>
+                    <a class="button" href="{% url 'my_club' %}?edit=1">Edit Club</a>
+                    <a href="{% url 'dashboard' %}">Back to Dashboard</a>
+                {% endif %}
             </div>
         {% endif %}
 

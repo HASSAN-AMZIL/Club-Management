@@ -28,6 +28,8 @@ class StatsForm(forms.ModelForm):
     class Meta:
         model = Stats
         fields = [
+            'overall',
+            'form',
             'pace',
             'shooting',
             'passing',
@@ -35,6 +37,8 @@ class StatsForm(forms.ModelForm):
             'dribbling',
         ]
         widgets = {
+            'overall': forms.NumberInput(attrs={'class': 'form-control'}),
+            'form': forms.Select(attrs={'class': 'form-control'}),
             'pace': forms.NumberInput(attrs={'class': 'form-control'}),
             'shooting': forms.NumberInput(attrs={'class': 'form-control'}),
             'passing': forms.NumberInput(attrs={'class': 'form-control'}),
