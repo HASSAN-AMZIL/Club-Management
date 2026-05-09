@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load money_format %}
 
 {% block title %}Transfers | Football Scouting{% endblock %}
 
@@ -150,7 +151,7 @@
                                         -
                                     {% endif %}
                                 </td>
-                                <td>€{{ player.value }}</td>
+                                <td>{{ player.value|money }}</td>
                                 <td><a href="{% url 'transfer_club_detail' player.club.id %}">{{ player.club.name }}</a></td>
                             </tr>
                         {% endfor %}

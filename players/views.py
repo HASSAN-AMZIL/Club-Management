@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -95,6 +96,7 @@ def player_generate_report_view(request, player_id):
             'player': player,
             'scouting_report': report,
             'report_error': report_error,
+            'report_model': settings.OLLAMA_MODEL if report else None,
         },
     )
 

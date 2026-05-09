@@ -31,11 +31,11 @@ class DashboardViewTests(TestCase):
             trophies_count=trophies_count,
         )
 
-    def create_player(self, name, club, age, value, overall, form=Stats.FORM_GOOD):
+    def create_player(self, name, club, age, value, overall, form=Stats.FORM_GOOD, position='CM'):
         player = Player.objects.create(
             name=name,
             age=age,
-            position='CM',
+            position=position,
             value=value,
             join_date=timezone.localdate(),
             image_url=f'{name}.png',
@@ -73,7 +73,7 @@ class DashboardViewTests(TestCase):
         self.assertContains(response, 'Atlas United')
         self.assertContains(response, 'Players')
         self.assertContains(response, '4')
-        self.assertContains(response, '€310M')
+        self.assertContains(response, '€310 000 000')
         self.assertContains(response, 'Avg Age')
         self.assertContains(response, '32')
         self.assertContains(response, '12')
@@ -108,6 +108,30 @@ class DashboardViewTests(TestCase):
         self.assertContains(response, 'Recent Transfers')
         self.assertContains(response, 'Transfer Target')
         self.assertNotContains(response, 'Unrelated Transfer')
+
+    def test_dashboard_shows_position_donut_chart_groups(self):
+        self.create_player('Striker', self.my_club, 24, 10000000, 82, position='ST')
+        self.create_player('Winger', self.my_club, 23, 11000000, 83, position='LW')
+        self.create_player('Midfielder', self.my_club, 25, 12000000, 84, position='CM')
+        self.create_player('Defender', self.my_club, 27, 9000000, 80, position='CB')
+        self.create_player('Keeper', self.my_club, 29, 7000000, 79, position='GK')
+        self.create_player('Other Striker', self.other_club, 24, 10000000, 82, position='ST')
+        self.client.login(username='scout', password='password123')
+
+        response = self.client.get(reverse('dashboard'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Squad Positions')
+        self.assertContains(response, 'positionDonutChart')
+        self.assertContains(response, 'https://cdn.jsdelivr.net/npm/chart.js')
+        self.assertEqual(
+            response.context['position_chart'],
+            {
+                'labels': ['Attack', 'Center', 'Defence', 'GK'],
+                'counts': [2, 1, 1, 1],
+                'colors': ['#84CC16', '#22C55E', '#38BDF8', '#F59E0B'],
+            },
+        )
 
 
 class MatchesViewTests(TestCase):

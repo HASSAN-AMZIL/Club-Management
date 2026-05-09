@@ -59,7 +59,7 @@ class ScoutingReportPromptTests(PlayerReportTestCase):
         self.assertIn('Age: 24', prompt)
         self.assertIn('Position: ST', prompt)
         self.assertIn('Club: Atlas United', prompt)
-        self.assertIn('Price: €2300000', prompt)
+        self.assertIn('Price: €2 300 000', prompt)
         self.assertIn('- Overall: 84', prompt)
         self.assertIn('- Form: Good', prompt)
         self.assertIn('- Pace: 84', prompt)
@@ -121,6 +121,7 @@ class PlayerGenerateReportViewTests(PlayerReportTestCase):
         generate_report.assert_called_once()
         self.assertContains(response, 'Scouting Report')
         self.assertContains(response, report)
+        self.assertContains(response, 'Generated with AI model')
 
     def test_generate_report_post_shows_ollama_error(self):
         url = reverse('player_generate_report', args=[self.player.id])
@@ -135,6 +136,7 @@ class PlayerGenerateReportViewTests(PlayerReportTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, message)
         self.assertNotContains(response, 'Scouting Report')
+        self.assertNotContains(response, 'id="reportMeta"')
 
     def test_generate_report_post_requires_stats(self):
         self.stats.delete()

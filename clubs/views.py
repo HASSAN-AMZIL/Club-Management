@@ -6,17 +6,16 @@ from django.utils import timezone
 from .forms import ClubForm
 from .models import Club, Match
 from players.models import Player, Stats
+from players.utils import format_money
 from transfers.models import Transfer
 
 
-def format_millions(value):
-    value = value or 0
-    millions = value / 1000000
-
-    if millions.is_integer():
-        return f'€{int(millions)}M'
-
-    return f'€{millions:.1f}M'
+POSITION_GROUPS = [
+    ('Attack', ['ST', 'CF', 'LW', 'RW'], '#84CC16'),
+    ('Center', ['CDM', 'CM', 'CAM', 'LM', 'RM'], '#22C55E'),
+    ('Defence', ['CB', 'LB', 'RB', 'LWB', 'RWB'], '#38BDF8'),
+    ('GK', ['GK'], '#F59E0B'),
+]
 
 
 @login_required
@@ -38,6 +37,14 @@ def dashboard_view(request):
         .select_related('player', 'from_club', 'to_club')
         .order_by('-date', 'player__name')[:5]
     )
+    position_chart_items = [
+        {
+            'label': label,
+            'count': players.filter(position__in=positions).count(),
+            'color': color,
+        }
+        for label, positions, color in POSITION_GROUPS
+    ]
 
     return render(
         request,
@@ -45,12 +52,18 @@ def dashboard_view(request):
         {
             'club': club,
             'player_count': player_count,
-            'squad_value': format_millions(aggregates['total_value']),
+            'squad_value': format_money(aggregates['total_value']),
             'avg_age': round(aggregates['avg_age'] or 0),
             'recent_transfers': recent_transfers,
             'top_player': top_player,
             'older_players_count': players.filter(age__gt=30).count(),
             'underperforming_count': players.filter(stats__form=Stats.FORM_BAD).count(),
+            'position_chart_items': position_chart_items,
+            'position_chart': {
+                'labels': [item['label'] for item in position_chart_items],
+                'counts': [item['count'] for item in position_chart_items],
+                'colors': [item['color'] for item in position_chart_items],
+            },
         },
     )
 

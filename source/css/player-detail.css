@@ -238,6 +238,18 @@ main {
   margin: 0 0 10px;
 }
 
+.report-meta {
+  width: fit-content;
+  margin: 0 0 14px !important;
+  padding: 8px 12px;
+  color: var(--accent) !important;
+  background: rgba(132, 204, 22, 0.09);
+  border: 1px solid rgba(132, 204, 22, 0.32);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 850;
+}
+
 .actions {
   display: flex;
   justify-content: flex-end;
@@ -248,6 +260,26 @@ main {
 
 .actions .inline-form {
   margin: 0;
+}
+
+.report-form {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.report-timer {
+  min-width: 58px;
+  padding: 8px 10px;
+  color: var(--accent);
+  background: rgba(132, 204, 22, 0.09);
+  border: 1px solid rgba(132, 204, 22, 0.32);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
 }
 
 .pdf-form {

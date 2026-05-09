@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static money_format %}
 
 {% block title %}{% if read_only %}{{ club.name }}{% else %}My Club{% endif %} | Football Scouting{% endblock %}
 
@@ -163,7 +163,7 @@
             <div class="stats-grid">
                 <div class="stat-card">
                     <strong>Budget</strong>
-                    <span>€{{ club.budget }}</span>
+                    <span>{{ club.budget|money }}</span>
                 </div>
                 <div class="stat-card">
                     <strong>Trophies</strong>

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static money_format %}
 
 {% block title %}Dashboard | Football Scouting{% endblock %}
 
@@ -76,6 +76,85 @@
         gap: 18px;
     }
 
+    .squad-chart-card {
+        display: grid;
+        grid-template-columns: minmax(240px, 0.9fr) minmax(0, 1.1fr);
+        gap: 22px;
+        align-items: center;
+    }
+
+    .chart-visual {
+        position: relative;
+        width: min(260px, 100%);
+        aspect-ratio: 1;
+        justify-self: center;
+    }
+
+    .chart-visual canvas {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    .chart-total {
+        position: absolute;
+        inset: 50% auto auto 50%;
+        display: grid;
+        min-width: 92px;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        pointer-events: none;
+    }
+
+    .chart-total strong {
+        color: #ffffff;
+        font-size: 34px;
+        line-height: 1;
+    }
+
+    .chart-total span {
+        color: #9CA3AF;
+        font-size: 11px;
+        font-weight: bold;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .chart-legend {
+        display: grid;
+        gap: 10px;
+    }
+
+    .chart-legend-row {
+        display: grid;
+        grid-template-columns: 12px minmax(0, 1fr) auto;
+        gap: 10px;
+        align-items: center;
+        padding: 11px 12px;
+        border: 1px solid #1F2937;
+        border-radius: 12px;
+        background: rgba(11, 17, 32, 0.44);
+    }
+
+    .chart-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--chart-color);
+        box-shadow: 0 0 16px color-mix(in srgb, var(--chart-color), transparent 42%);
+    }
+
+    .chart-legend-row strong {
+        margin: 0;
+        color: #ffffff;
+        font-size: 14px;
+    }
+
+    .chart-legend-row span:last-child {
+        color: #84CC16;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
     .transfer-list,
     .risk-list {
         display: grid;
@@ -109,7 +188,8 @@
 
     @media (max-width: 760px) {
         .club-summary,
-        .content-grid {
+        .content-grid,
+        .squad-chart-card {
             grid-template-columns: 1fr;
         }
     }
@@ -153,6 +233,29 @@
             </div>
         </section>
 
+        <section class="section-card squad-chart-card">
+            <div>
+                <h3>Squad Positions</h3>
+                <p>Total players</p>
+                <div class="chart-legend">
+                    {% for item in position_chart_items %}
+                        <div class="chart-legend-row">
+                            <span class="chart-dot" style="--chart-color: {{ item.color }}"></span>
+                            <strong>{{ item.label }}</strong>
+                            <span>{{ item.count }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="chart-visual">
+                <canvas id="positionDonutChart" aria-label="Squad position distribution" role="img"></canvas>
+                <div class="chart-total">
+                    <strong>{{ player_count }}</strong>
+                    <span>Players</span>
+                </div>
+            </div>
+        </section>
+
         <section class="content-grid">
             <div class="section-card">
                 <h3>Recent Transfers</h3>
@@ -162,7 +265,7 @@
                             <div class="transfer-row">
                                 <span class="transfer-main">{{ transfer.player.name }}</span>
                                 <p>{{ transfer.from_club.name }} &rarr; {{ transfer.to_club.name }}</p>
-                                <p>€{{ transfer.price }} &middot; {{ transfer.date }}</p>
+                                <p>{{ transfer.price|money }} &middot; {{ transfer.date }}</p>
                             </div>
                         {% endfor %}
                     </div>
@@ -177,7 +280,7 @@
                     <div class="top-player">
                         <strong>{{ top_player.name }}</strong>
                         <p>{{ top_player.position }} &middot; Overall {{ top_player.stats.overall }}</p>
-                        <p>€{{ top_player.value }}</p>
+                        <p>{{ top_player.value|money }}</p>
                     </div>
                 {% else %}
                     <p class="empty">No players available.</p>
@@ -196,4 +299,47 @@
             </div>
         </section>
     </div>
+
+    {{ position_chart|json_script:"position-chart-data" }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const chartElement = document.getElementById('positionDonutChart');
+        const chartDataElement = document.getElementById('position-chart-data');
+
+        if (chartElement && chartDataElement && window.Chart) {
+            const positionData = JSON.parse(chartDataElement.textContent);
+
+            new Chart(chartElement, {
+                type: 'doughnut',
+                data: {
+                    labels: positionData.labels,
+                    datasets: [{
+                        data: positionData.counts,
+                        backgroundColor: positionData.colors,
+                        borderColor: '#111827',
+                        borderWidth: 4,
+                        hoverOffset: 8,
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '72%',
+                    plugins: {
+                        legend: {
+                            display: false,
+                        },
+                        tooltip: {
+                            backgroundColor: '#0B1120',
+                            borderColor: '#1F2937',
+                            borderWidth: 1,
+                            titleColor: '#FFFFFF',
+                            bodyColor: '#D1D5DB',
+                            displayColors: true,
+                        },
+                    },
+                },
+            });
+        }
+    </script>
 {% endblock %}

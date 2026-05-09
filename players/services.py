@@ -11,6 +11,8 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import inch
 from reportlab.platypus import Image, KeepTogether, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
+from .utils import format_money
+
 
 SCOUTING_REPORT_PROMPT = """You are a professional football scout analyst.
 
@@ -60,7 +62,7 @@ def build_scouting_report_prompt(player, stats):
         age=player.age,
         position=player.position,
         club_name=player.club.name,
-        price=f'€{player.value}',
+        price=format_money(player.value),
         overall=stats.overall,
         form=stats.form,
         pace=stats.pace,
@@ -170,7 +172,7 @@ def build_player_report_pdf(player, scouting_report=''):
     title_block = [
         Paragraph(player.name, styles['ReportTitle']),
         Paragraph(f'{player.position} | Age {player.age} | {player.club.name}', styles['Body']),
-        Paragraph(f'Market value: €{player.value}', styles['Body']),
+        Paragraph(f'Market value: {format_money(player.value)}', styles['Body']),
     ]
 
     if image_path is not None:
@@ -198,7 +200,7 @@ def build_player_report_pdf(player, scouting_report=''):
             ('Name', player.name),
             ('Age', player.age),
             ('Position', player.position),
-            ('Value', f'€{player.value}'),
+            ('Value', format_money(player.value)),
             ('Join Date', player.join_date),
             ('Club', player.club.name),
         ]
@@ -211,7 +213,7 @@ def build_player_report_pdf(player, scouting_report=''):
             ('Club', player.club.name),
             ('League', league.name if league else '-'),
             ('Country / City', f'{player.club.country}, {player.club.city}'),
-            ('Budget', f'€{player.club.budget}'),
+            ('Budget', format_money(player.club.budget)),
         ]
     ))
 

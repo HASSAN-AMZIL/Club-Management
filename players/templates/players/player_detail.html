@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static money_format %}
 
 {% block title %}{{ player.name }} | Football Scouting{% endblock %}
 
@@ -28,7 +28,7 @@
         <div class="info-grid">
             <div class="info-card">
                 <strong>Market Value</strong>
-                €{{ player.value }}
+                {{ player.value|money }}
             </div>
             <div class="info-card">
                 <strong>Club</strong>
@@ -55,12 +55,22 @@
         {% if scouting_report %}
             <div class="report-panel">
                 <h3>Scouting Report</h3>
+                {% if report_model %}
+                    <p
+                        class="report-meta"
+                        id="reportMeta"
+                        data-player-id="{{ player.id }}"
+                        data-model="{{ report_model }}"
+                    >
+                        Generated with AI model "{{ report_model }}".
+                    </p>
+                {% endif %}
                 <p>{{ scouting_report }}</p>
             </div>
         {% endif %}
 
         {% if report_error %}
-            <div class="error-panel">
+            <div class="error-panel" id="reportError" data-player-id="{{ player.id }}">
                 <p>{{ report_error }}</p>
             </div>
         {% endif %}
@@ -69,9 +79,11 @@
             <form
                 class="inline-form report-form"
                 method="post"
+                data-player-id="{{ player.id }}"
                 action="{% if read_only %}{% url 'transfer_player_generate_report' player.id %}{% else %}{% url 'player_generate_report' player.id %}{% endif %}"
             >
                 {% csrf_token %}
+                <span class="report-timer" aria-live="polite" hidden>00:00</span>
                 <button class="button report-button" type="submit">
                     <span class="loading-spinner" aria-hidden="true"></span>
                     <span class="button-text">Generate Report</span>
@@ -102,15 +114,53 @@
 
     <script>
         const reportForm = document.querySelector('.report-form');
+        const reportMeta = document.querySelector('#reportMeta');
+        const reportError = document.querySelector('#reportError');
+
+        const formatReportDuration = (milliseconds) => {
+            const totalSeconds = Math.max(0, Math.round(milliseconds / 1000));
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+
+            return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        };
+
+        const reportStartKey = (playerId) => `player-report-start-${playerId}`;
+
+        if (reportMeta) {
+            const playerId = reportMeta.dataset.playerId;
+            const startTime = Number(sessionStorage.getItem(reportStartKey(playerId)));
+
+            if (startTime) {
+                const elapsed = formatReportDuration(Date.now() - startTime);
+                reportMeta.textContent = `Generated with AI model "${reportMeta.dataset.model}" in ${elapsed}.`;
+                sessionStorage.removeItem(reportStartKey(playerId));
+            }
+        }
+
+        if (reportError) {
+            sessionStorage.removeItem(reportStartKey(reportError.dataset.playerId));
+        }
 
         if (reportForm) {
             reportForm.addEventListener('submit', () => {
                 const button = reportForm.querySelector('.report-button');
                 const buttonText = reportForm.querySelector('.button-text');
+                const timer = reportForm.querySelector('.report-timer');
+                const playerId = reportForm.dataset.playerId;
+                const startTime = Date.now();
+
+                sessionStorage.setItem(reportStartKey(playerId), String(startTime));
 
                 reportForm.classList.add('is-loading');
                 button.disabled = true;
                 buttonText.textContent = 'Thinking...';
+                timer.hidden = false;
+                timer.textContent = '00:00';
+
+                setInterval(() => {
+                    timer.textContent = formatReportDuration(Date.now() - startTime);
+                }, 1000);
             });
         }
     </script>
