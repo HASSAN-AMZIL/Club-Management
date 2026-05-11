@@ -276,7 +276,7 @@ def _resolve_player_image_path(player):
     if not image_url or '://' in image_url:
         return None
 
-    image_path = Path(settings.BASE_DIR) / 'source' / 'players' / image_url
+    image_path = Path(settings.BASE_DIR) / 'static' / 'players' / image_url
 
     if image_path.is_file():
         return image_path

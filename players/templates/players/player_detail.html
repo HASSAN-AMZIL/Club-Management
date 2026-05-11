@@ -8,15 +8,15 @@
 {% endblock %}
 
 {% block content %}
-    {% get_static_prefix as STATIC_PREFIX %}
+    {% static 'players/default.png' as default_player_photo %}
 
     <section class="panel">
         <div class="player-header">
             <img
                 class="player-photo"
-                src="{{ STATIC_PREFIX }}players/{{ player.image_url }}"
+                src="{% static 'players/' %}{{ player.image_url }}"
                 alt="{{ player.name }}"
-                onerror="this.onerror=null; this.src='{{ STATIC_PREFIX }}players/default.png';"
+                onerror="this.onerror=null; this.src='{{ default_player_photo }}';"
             >
             <div>
                 <h2>{{ player.name }}</h2>

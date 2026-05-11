@@ -196,15 +196,15 @@
 {% endblock %}
 
 {% block content %}
-    {% get_static_prefix as STATIC_PREFIX %}
+    {% static 'club/default.png' as default_club_logo %}
 
     <div class="dashboard-grid">
         <section class="panel club-summary">
             <img
                 class="club-logo"
-                src="{{ STATIC_PREFIX }}club/{{ club.logo_url }}"
+                src="{% static 'club/' %}{{ club.logo_url }}"
                 alt="{{ club.name }} logo"
-                onerror="this.onerror=null; this.src='{{ STATIC_PREFIX }}club/default.png';"
+                onerror="this.onerror=null; this.src='{{ default_club_logo }}';"
             >
             <div>
                 <h2>{{ club.name }}</h2>
