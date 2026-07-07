@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This university Final Year Project is a Django-based football scouting web application.
+This is a Django-based football scouting web application.
 
 The system is used to manage football clubs, players, player statistics, recommendations, and scouting reports.
 
